@@ -1,36 +1,59 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { financeData } from '../constants';
+import React from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { financeData } from "../constants";
 
-const StatCard = ({ label, value, color }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-    <p className="text-gray-500 text-sm mb-1">{label}</p>
-    <p className={`text-2xl font-bold ${color}`}>{value}</p>
-  </div>
-);
+const FinanceChart = () => {
+  // Prepare data for Forecast Point (add 1 month after the existing data)
+  const lastMonth = financeData[financeData.length - 1];
+  const prevMonth = financeData[financeData.length - 2];
 
-const DashboardView = () => (
-  <div className="animate-fade-in">
-    <h2 className="text-2xl font-bold mb-6 text-gray-800">ផ្ទាំងគ្រប់គ្រងហិរញ្ញវត្ថុ</h2>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <StatCard label="ចំណូលសរុប" value="$5,600" color="text-green-600" />
-      <StatCard label="ចំណាយសរុប" value="$4,050" color="text-red-600" />
-      <StatCard label="សមតុល្យ" value="$1,550" color="text-blue-600" />
-    </div>
-    <div className="bg-white p-6 rounded-xl shadow-sm">
-      <h3 className="mb-4 font-semibold">ស្ថិតិចំណូល និងចំណាយប្រចាំខែ</h3>
-      <div className="h-80">
+  const lastTotal = Object.values(lastMonth.expenses).reduce((a, b) => a + b, 0);
+  const prevTotal = Object.values(prevMonth.expenses).reduce((a, b) => a + b, 0);
+  const trend = (lastTotal - prevTotal) / prevTotal;
+  const prediction = Math.round(lastTotal * (1 + trend));
+
+  // Insert forecast data into array for displaying on the chart
+  const chartData = [
+    ...financeData.map(d => ({
+      name: d.month,
+      income: d.income,
+      expense: Object.values(d.expenses).reduce((a, b) => a + b, 0),
+    })),
+    { name: 'Next Month (AI)', forecast: prediction } // Forecast point
+  ];
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-6">
+      <h3 className="text-lg font-bold text-gray-800 mb-4">Financial Trends and Forecast</h3>
+      <div className="h-100 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={financeData}>
-            <XAxis dataKey="month" />
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
-          </BarChart>
+            <Legend />
+            {/* 
+            <ReferenceLine
+              y={1500}
+              label="Budget Limit"
+              stroke="red"
+              strokeDasharray="3 3"
+            /> */}
+            {/* Income line */}
+            <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={3} name="Income ($)" dot={{ r: 6 }} />
+            {/* Actual expense line */}
+            <Line type="monotone" dataKey="expense" stroke="#3b82f6" strokeWidth={3} name="Actual Expense ($)" dot={{ r: 6 }} />
+            {/* Forecast line (use a different color to distinguish) */}
+            <Line type="dashed" dataKey="forecast" stroke="#f59e0b" strokeWidth={3} strokeDasharray="5 5" name="Forecast ($)" />
+          </LineChart>
         </ResponsiveContainer>
       </div>
+      <p className="text-xs text-center text-gray-400 mt-4 italic">
+        * Dashed line represents AI-based estimation using past data
+      </p>
     </div>
-  </div>
-);
+  );
+};
 
-export default DashboardView;
+export default FinanceChart;

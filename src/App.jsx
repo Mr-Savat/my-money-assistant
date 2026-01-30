@@ -18,38 +18,56 @@ const App = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSend = async () => {
-    if (!input || loading) return;
 
-    setMessages(prev => [...prev, { role: "user", text: input }]);
-    setInput("");
+  // Prepare summary of expenses by category for prompt
+  const categorySummary = financeData.map(m => {
+    const total = Object.values(m.expenses).reduce((a, b) => a + b, 0);
+    return `${m.month}: $${total}`;
+  }).join(", ");
+
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+
+    const userText = input;
+
     setLoading(true);
+    setInput("");
+
+    // ✅ Add user + empty AI message in ONE update
+    setMessages(prev => [
+      ...prev,
+      { role: "user", text: userText },
+      { role: "ai", text: "" }
+    ]);
 
     const { totalIncome, totalExpense, balance } = calculateFinance(financeData);
 
     const prompt = `
-You are Money Assist AI. Format replies using Markdown.
-Balance: $${balance}
-Income: $${totalIncome}
-Expenses: $${totalExpense}
-User Question: ${input}
-`;
+        You are Money Assist AI. Format replies using Markdown.
+        Balance: $${balance}
+        Income: $${totalIncome}
+        Expenses: $${totalExpense}
+        Monthly expense breakdown: ${categorySummary}
+        User Question: ${userText}
+        `;
 
     try {
       const aiText = await askMoneyAI(prompt);
 
-      // Add empty AI message first
-      setMessages(prev => [...prev, { role: "ai", text: "" }]);
-
-      // Typing animation (this will stop loading itself)
-      typeTextEffect(aiText, setMessages, setLoading);
+      // ✨ typing effect updates LAST message safely
+      typeTextEffect(aiText, setMessages, () => setLoading(false));
 
     } catch (err) {
-      console.error("The AI failed because:", err.message);
-      setMessages(prev => [...prev, { role: "ai", text: "AI connection error" }]);
-      setLoading(false); // only stop loading on error
+      console.error(err);
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1].text = "AI connection error";
+        return updated;
+      });
+      setLoading(false);
     }
   };
+
 
 
   return (

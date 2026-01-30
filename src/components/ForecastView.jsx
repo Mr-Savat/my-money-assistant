@@ -1,30 +1,91 @@
-const ForecastView = () => (
-  <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100 animate-fade-in">
-    <h2 className="text-xl font-bold mb-4 text-gray-800">ការទស្សន៍ទាយសម្រាប់ខែឧសភា</h2>
-    <p className="text-gray-600 mb-6">ផ្អែកលើទិន្នន័យ ៤ ខែចុងក្រោយ ប្រព័ន្ធ AI បានប៉ាន់ស្មានថា៖</p>
-    
-    <div className="border-l-4 border-yellow-500 bg-yellow-50 p-4 mb-6">
-      <p className="font-bold text-yellow-700 underline">ការចំណាយរំពឹងទុក: $1,150</p>
-      <p className="text-sm text-yellow-600 mt-1">
-        អ្នកអាចនឹងចំណាយច្រើនជាងមធ្យមភាគ 5% ដោយសារនិន្នាការកើនឡើងក្នុងខែមេសា។
+import React from 'react';
+import { financeData } from "../constants";
+
+const ForecastView = () => {
+  // Get last month and previous month data
+  const lastMonth = financeData[financeData.length - 1];
+  const prevMonth = financeData[financeData.length - 2];
+
+  // Function to calculate total monthly expenses
+  const getTotalExpense = (monthData) =>
+    Object.values(monthData.expenses).reduce((a, b) => a + b, 0);
+
+  const lastTotal = getTotalExpense(lastMonth);
+  const prevTotal = getTotalExpense(prevMonth);
+
+  // 1. Calculate overall trend (%)
+  const trendPercent = (((lastTotal - prevTotal) / prevTotal) * 100).toFixed(1);
+  const predictedExpense = Math.round(lastTotal * (1 + trendPercent / 100));
+  const predictedSavings = lastMonth.income - predictedExpense;
+
+  // 2. Find the expense category with the highest increase (Top Growing Category)
+  const getTopIncrease = () => {
+    let topCat = "";
+    let maxDiff = -Infinity;
+
+    Object.keys(lastMonth.expenses).forEach((cat) => {
+      const diff = lastMonth.expenses[cat] - prevMonth.expenses[cat];
+      if (diff > maxDiff) {
+        maxDiff = diff;
+        topCat = cat;
+      }
+    });
+    return { category: topCat, amount: maxDiff };
+  };
+
+  const topIncrease = getTopIncrease();
+
+  return (
+    <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="p-2 bg-blue-100 rounded-lg text-blue-600">✨</span>
+        <h2 className="text-xl font-bold text-gray-800">AI Forecast</h2>
+      </div>
+
+      <p className="text-sm text-gray-500 mb-6">
+        Based on your data from {lastMonth.month} and {prevMonth.month}.
       </p>
-    </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-        <p className="text-sm text-green-700 font-semibold">លទ្ធភាពសន្សំ</p>
-        <p className="text-xl font-bold text-green-800">$450 - $600</p>
+      {/* Forecast Expense Card */}
+      <div className={`p-4 rounded-xl border-l-4 mb-6 ${predictedSavings < 0 ? 'bg-red-50 border-red-500' : 'bg-blue-50 border-blue-500'}`}>
+        <p className="text-sm font-medium text-gray-600">Expected Expenses Next Month</p>
+        <div className="flex items-baseline gap-2">
+          <span className="text-3xl font-bold text-gray-900">${predictedExpense}</span>
+          <span className={`text-sm font-bold ${trendPercent > 0 ? 'text-red-500' : 'text-green-500'}`}>
+            {trendPercent > 0 ? '↑' : '↓'} {Math.abs(trendPercent)}%
+          </span>
+        </div>
       </div>
-      <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-        <p className="text-sm text-blue-700 font-semibold">ស្ថានភាពហិរញ្ញវត្ថុ</p>
-        <p className="text-xl font-bold text-blue-800">មានស្ថេរភាព</p>
+
+      {/* AI Analysis Insight */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Saving Potential</p>
+          <p className={`text-xl font-bold mt-1 ${predictedSavings < 0 ? 'text-red-500' : 'text-green-600'}`}>
+            ${predictedSavings}
+          </p>
+        </div>
+        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Highest Expense Increase</p>
+          <p className="text-xl font-bold mt-1 text-orange-600">
+            {topIncrease.category} (+${topIncrease.amount})
+          </p>
+        </div>
+      </div>
+
+      {/* Smart Advice Section */}
+      <div className="p-4 bg-linear-to-r from-indigo-50 to-blue-50 rounded-xl border border-blue-100">
+        <p className="text-sm font-bold text-indigo-800 flex items-center gap-2">
+          💡 Advice from Financial Assistant
+        </p>
+        <p className="text-sm text-indigo-900 mt-2 leading-relaxed">
+          {predictedSavings < 0
+            ? `Warning! Your expenses may exceed your income. Try reducing spending on "${topIncrease.category}" to maintain balance.`
+            : `You're on the right track! If you further reduce spending on "${topIncrease.category}", you could save more than $${predictedSavings + 50} next month.`}
+        </p>
       </div>
     </div>
-
-    <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-      ទាញយករបាយការណ៍លម្អិត (.PDF)
-    </button>
-  </div>
-);
+  );
+};
 
 export default ForecastView;
