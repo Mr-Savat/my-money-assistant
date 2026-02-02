@@ -14,7 +14,7 @@ const BlockchainView = () => {
           <ShieldCheck /> Blockchain Data Integrity
         </h2>
         <p className="text-indigo-800">
-          រាល់ប្រតិបត្តិការហិរញ្ញវត្ថុរបស់អ្នកត្រូវបាន Hash និងរក្សាទុកក្នុង Demo Ledger ដើម្បីធានាថាមិនមានការកែបន្លំ។
+        All your financial transactions are hashed and stored in a demo ledger to ensure they cannot be tampered with.
         </p>
       </div>
 

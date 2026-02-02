@@ -13,7 +13,7 @@ import { typeTextEffect } from "./utils/typeEffect";
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [messages, setMessages] = useState([
-    { role: 'ai', text: 'សួស្តី! ខ្ញុំជាជំនួយការហិរញ្ញវត្ថុ AI។' }
+    { role: 'ai', text: 'Hello! I am your AI financial assistant.' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);

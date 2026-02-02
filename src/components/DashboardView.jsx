@@ -33,7 +33,7 @@ const Dashboard = () => {
         {/* --- SECTION 1: TOP NAVIGATION & USER PROFILE --- */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Welcome back, Alex!</h1>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Welcome back, Dara!</h1>
             <p className="text-gray-500 font-medium">Here's what's happening with your money today.</p>
           </div>
 
@@ -43,7 +43,7 @@ const Dashboard = () => {
                 A
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-bold leading-none">Alex Johnson</p>
+                <p className="text-sm font-bold leading-none">Dara</p>
                 <p className="text-[10px] text-gray-400 mt-1 uppercase font-black">Pro Plan</p>
               </div>
             </div>
