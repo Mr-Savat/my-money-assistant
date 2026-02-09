@@ -5,6 +5,8 @@ import ChatView from './components/ChatView';
 import ForecastView from './components/ForecastView';
 import BlockchainView from './components/BlockchainView';
 import { financeData } from './constants';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+// import Auth  from './hooks/Auth';
 
 import { askMoneyAI } from "./services/aiService";
 import { calculateFinance } from "./utils/financeUtils";
@@ -68,10 +70,15 @@ const App = () => {
     }
   };
 
+// const ProtectedRoute = ({ children }) => {
+//     const user = localStorage.getItem('user_data');
+//     // If no user in localstorage, send them back to login
+//     return user ? children : <Navigate to="/login" />;
+//   };
 
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
+    <div className="flex bg-gray-100 font-sans">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 flex flex-col overflow-hidden">

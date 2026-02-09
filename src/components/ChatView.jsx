@@ -14,7 +14,7 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
   }, [messages, loading]);
 
   return (
-    <div className="flex flex-col h-full bg-linear-to-br from-indigo-50 via-white to-purple-50">
+    <div className="flex flex-col h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.length === 0 ? (
@@ -26,7 +26,7 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
               Money Assist AI
             </h2>
             <p className="text-gray-600 max-w-md">
-              សួស្តី! ខ្ញុំជាជំនួយការហិរញ្ញវត្ថុរបស់អ្នក។ សួរអ្វីក៏បានដើម្បីគ្រប់គ្រងហិរញ្ញវត្ថុរបស់អ្នកឱ្យកាន់តែប្រសើរ
+              Hello! I am your financial assistant. You can ask anything to better manage your finances.
             </p>
           </div>
         ) : (
@@ -99,8 +99,8 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
               className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 disabled:bg-gray-50 disabled:text-gray-500 transition-all text-sm"
               placeholder={
                 loading
-                  ? "កំពុងរង់ចាំការឆ្លើយតប..."
-                  : "សួរអ្វីមួយពីហិរញ្ញវត្ថុរបស់អ្នក..."
+                  ? "Waiting for a response..."
+                  : "Ask something about your finances..."
               }
             />
             <button
@@ -109,7 +109,7 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
               className="bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-6 py-3 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">ផ្ញើ</span>
+              <span className="hidden sm:inline">Send</span>
             </button>
           </div>
         </form>
