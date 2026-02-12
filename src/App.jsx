@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import Sidebar from './components/Sidebar';
 import DashboardView from './components/DashboardView';
 import ChatView from './components/ChatView';
 import ForecastView from './components/ForecastView';
 import BlockchainView from './components/BlockchainView';
 import { financeData } from './constants';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-// import Auth  from './hooks/Auth';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
+import DashboardLayout from './components/DashboardLayout';
+import AuthView from './components/AuthView';
 
 import { askMoneyAI } from "./services/aiService";
 import { calculateFinance } from "./utils/financeUtils";
 import { typeTextEffect } from "./utils/typeEffect";
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [messages, setMessages] = useState([
     { role: 'ai', text: 'Hello! I am your AI financial assistant.' }
   ]);
@@ -21,7 +21,6 @@ const App = () => {
   const [loading, setLoading] = useState(false);
 
 
-  // Prepare summary of expenses by category for prompt
   const categorySummary = financeData.map(m => {
     const total = Object.values(m.expenses).reduce((a, b) => a + b, 0);
     return `${m.month}: $${total}`;
@@ -35,7 +34,7 @@ const App = () => {
     setLoading(true);
     setInput("");
 
-    // ✅ Add user + empty AI message in ONE update
+  
     setMessages(prev => [
       ...prev,
       { role: "user", text: userText },
@@ -56,7 +55,7 @@ const App = () => {
     try {
       const aiText = await askMoneyAI(prompt);
 
-      // ✨ typing effect updates LAST message safely
+      // typing effect updates LAST message safely
       typeTextEffect(aiText, setMessages, () => setLoading(false));
 
     } catch (err) {
@@ -70,32 +69,36 @@ const App = () => {
     }
   };
 
-// const ProtectedRoute = ({ children }) => {
-//     const user = localStorage.getItem('user_data');
-//     // If no user in localstorage, send them back to login
-//     return user ? children : <Navigate to="/login" />;
-//   };
-
-
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    window.location.href = "/login";
+  };
   return (
-    <div className="flex bg-gray-100 font-sans">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <Router>
+      <Routes>
+        <Route path="/login" element={<AuthView mode="login" />} />
+        <Route path="/register" element={<AuthView mode="register" />} />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {activeTab === 'dashboard' && <DashboardView />}
-        {activeTab === 'chat' && (
-          <ChatView
-            messages={messages}
-            input={input}
-            setInput={setInput}
-            handleSend={handleSend}
-            loading={loading}
-          />
-        )}
-        {activeTab === 'forecast' && <ForecastView />}
-        {activeTab === 'blockchain' && <BlockchainView />}
-      </main>
-    </div>
+        {/* Protected Dashboard Routes */}
+        <Route path="/" element={<ProtectedRoute><DashboardLayout onLogout={handleLogout} /></ProtectedRoute>}>
+          {/* URL: / */}
+          <Route index element={<DashboardView />} />
+
+          {/* URL: /chat */}
+          <Route path="chat" element={
+            <ChatView messages={messages} input={input} setInput={setInput} handleSend={handleSend} loading={loading} />
+          } />
+
+          {/* URL: /forecast */}
+          <Route path="forecast" element={<ForecastView />} />
+
+          {/* URL: /blockchain */}
+          <Route path="blockchain" element={<BlockchainView />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 };
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { User, Bell, Search, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
 import { financeData } from "../constants";
+import { useState } from 'react';
 
 const Dashboard = () => {
   // 1. គណនាទិន្នន័យសម្រាប់ Forecast
@@ -11,6 +12,21 @@ const Dashboard = () => {
   const prevTotal = Object.values(prevMonth.expenses).reduce((a, b) => a + b, 0);
   const trend = (lastTotal - prevTotal) / (prevTotal || 1);
   const prediction = Math.round(lastTotal * (1 + trend));
+
+
+  const [userName] = useState(() => {
+    const savedData = localStorage.getItem('user_data');
+
+    if (savedData) {
+      const user = JSON.parse(savedData);
+      return user?.name || 'Guest';
+    }
+
+    return 'Guest';
+  });
+
+
+
 
   const chartData = [
     ...financeData.map(d => ({
@@ -33,8 +49,12 @@ const Dashboard = () => {
         {/* --- SECTION 1: TOP NAVIGATION & USER PROFILE --- */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Welcome back, Dara!</h1>
-            <p className="text-gray-500 font-medium">Here's what's happening with your money today.</p>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+              Welcome, {userName}!
+            </h1>
+            <p className="text-gray-500 font-medium">
+              Here's what's happening with your money today.
+            </p>
           </div>
 
           <div className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
@@ -43,7 +63,7 @@ const Dashboard = () => {
                 A
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-bold leading-none">Dara</p>
+                <p className="text-sm font-bold leading-none"> {userName}</p>
                 <p className="text-[10px] text-gray-400 mt-1 uppercase font-black">Pro Plan</p>
               </div>
             </div>
