@@ -8,6 +8,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 import AuthView from './components/AuthView';
+import UploadSection from './components/UploadSection';
+import ForecastResults from './components/ForecastResults';
+
 
 import { askMoneyAI } from "./services/aiService";
 import { calculateFinance } from "./utils/financeUtils";
@@ -34,7 +37,7 @@ const App = () => {
     setLoading(true);
     setInput("");
 
-  
+
     setMessages(prev => [
       ...prev,
       { role: "user", text: userText },
@@ -90,7 +93,12 @@ const App = () => {
           } />
 
           {/* URL: /forecast */}
-          <Route path="forecast" element={<ForecastView />} />
+          <Route path="forecast" element={<ForecastView />}>
+            {/* Show this when URL is /forecast */}
+            <Route index element={<UploadSection />} />
+            {/* Show this when URL is /forecast/results */}
+            <Route path="results" element={<ForecastResults />} />
+          </Route>
 
           {/* URL: /blockchain */}
           <Route path="blockchain" element={<BlockchainView />} />
