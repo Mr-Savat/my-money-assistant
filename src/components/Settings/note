@@ -1,0 +1,182 @@
+import React, { useState, useEffect } from 'react';
+import SettingRow from './SettingRow';
+import SettingSection from './SettingSection';
+import Toggle from './Toggle';
+
+import {
+    User, Bell, Lock, Globe, Trash2,
+    ChevronRight, Mail, Shield, Eye, AlertCircle, Save, X
+} from 'lucide-react';
+
+const SettingsView = () => {
+    const [profile, setProfile] = useState({ name: '', email: '' });
+    const [isEditing, setIsEditing] = useState(false);
+    const [notifs, setNotifs] = useState({ email: true, push: true });
+    const [twoFactor, setTwoFactor] = useState(false);
+    // 1. Load the REAL data from 'user_data' key
+    useEffect(() => {
+        const savedUserString = localStorage.getItem('user_data');
+        if (savedUserString) {
+            const savedUser = JSON.parse(savedUserString);
+            setProfile({
+                name: savedUser.name || '',
+                email: savedUser.email || ''
+            });
+        }
+    }, []);
+
+    const handleSave = () => {
+        // 2. Get the current full object (to keep the password safe!)
+        const savedUserString = localStorage.getItem('user_data');
+        const currentData = savedUserString ? JSON.parse(savedUserString) : {};
+
+        // 3. Merge new profile info with old data (keeping the password)
+        const updatedData = { ...currentData, ...profile };
+
+        localStorage.setItem('user_data', JSON.stringify(updatedData));
+        setIsEditing(false);
+        alert("Profile updated successfully!");
+    };
+    return (
+        <div className="h-screen w-full overflow-hidden flex flex-col bg-linear-to-br from-gray-50 via-blue-50/30 to-indigo-50/40">
+
+            <header className="shrink-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
+                <div className="max-w-5xl mx-auto px-8 py-6 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold bg-linear-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent">
+                            Settings
+                        </h1>
+                        <p className="text-gray-500 text-sm hidden md:block">Refine your experience and security</p>
+                    </div>
+                    <button className="px-5 py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200">
+                        Save Changes
+                    </button>
+                </div>
+            </header>
+
+            {/* 3. Main: This is the only part that scrolls */}
+            <main className="flex-1 overflow-y-auto px-8 py-10">
+                <div className="max-w-5xl mx-auto space-y-8 pb-20">
+
+                    {/* Profile Section */}
+                    <SettingSection
+                        title="Profile Information"
+                        description="Update your personal details and how others see you."
+                        icon={User}
+                        variant="default"
+                    >
+                        <div className="grid md:grid-cols-2 gap-4 mb-4">
+                            {/* Full Name Field */}
+                            <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Full Name</span>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 mt-1 font-bold text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={profile.name}
+                                        onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                                    />
+                                ) : (
+                                    <p className="font-bold text-gray-900 mt-1">{profile.name || "N/A"}</p>
+                                )}
+                            </div>
+
+                            {/* Email Field */}
+                            <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-100 transition-all focus-within:border-blue-300">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email Address</span>
+                                {isEditing ? (
+                                    <input
+                                        type="email"
+                                        className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 mt-1 font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
+                                        value={profile.email}
+                                        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                                    />
+                                ) : (
+                                    <p className="font-bold text-gray-900 mt-1">{profile.email || "N/A"}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Edit Toggle Logic */}
+                        {!isEditing ? (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center gap-2 text-blue-600 font-bold text-sm hover:underline p-2 group"
+                            >
+                                Edit Public Profile
+                                <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        ) : (
+                            <div className="flex gap-3 p-2">
+                                <button
+                                    onClick={handleSave}
+                                    className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
+                                >
+                                    <Save size={16} /> Save Changes
+                                </button>
+                                <button
+                                    onClick={() => setIsEditing(false)}
+                                    className="flex items-center gap-2 bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all active:scale-95"
+                                >
+                                    <X size={16} /> Cancel
+                                </button>
+                            </div>
+                        )}
+                    </SettingSection>
+
+                    {/* Notifications Section */}
+                    <SettingSection
+                        title="Notifications"
+                        description="Control how you want to be alerted."
+                        icon={Bell}
+                        variant="purple"
+                    >
+                        <SettingRow label="Email Notifications" subtext="Invoices and security alerts">
+                            <Toggle enabled={notifs.email} onChange={(v) => setNotifs({ ...notifs, email: v })} />
+                        </SettingRow>
+                        <SettingRow label="Push Notifications" subtext="Real-time activity updates">
+                            <Toggle enabled={notifs.push} onChange={(v) => setNotifs({ ...notifs, push: v })} />
+                        </SettingRow>
+                    </SettingSection>
+
+                    {/* Security Section */}
+                    <SettingSection
+                        title="Security"
+                        description="Manage your account access and protection."
+                        icon={Lock}
+                        variant="green"
+                    >
+                        <SettingRow label="Two-Factor Auth" subtext="Add a second step to login" icon={Shield}>
+                            <Toggle enabled={twoFactor} onChange={setTwoFactor} />
+                        </SettingRow>
+                        <SettingRow label="Password" subtext="Last updated 3 months ago" icon={Eye}>
+                            <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold transition-colors">
+                                Change
+                            </button>
+                        </SettingRow>
+                    </SettingSection>
+
+                    {/* Danger Zone */}
+                    <SettingSection
+                        title="Danger Zone"
+                        description="Actions here are permanent and cannot be undone."
+                        icon={Trash2}
+                        variant="danger"
+                    >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-red-50/50 border border-red-100 rounded-2xl">
+                            <div className="flex items-center gap-3 text-red-800">
+                                <AlertCircle size={20} />
+                                <p className="text-sm font-medium">Delete account and all associated data</p>
+                            </div>
+                            <button className="px-6 py-2.5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 shadow-lg shadow-red-200 transition-all active:scale-95">
+                                Delete Account
+                            </button>
+                        </div>
+                    </SettingSection>
+
+                </div>
+            </main>
+        </div>
+    );
+};
+export default SettingsView;

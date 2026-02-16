@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut, LayoutDashboard, MessageSquare, TrendingUp, ShieldCheck } from 'lucide-react';
+import { LogOut, LayoutDashboard, MessageSquare, TrendingUp, ShieldCheck, Settings } from 'lucide-react';
 
 const NavItem = ({ icon, label, to }) => {
   const location = useLocation();
@@ -23,6 +23,7 @@ const Sidebar = ({ onLogout }) => {
     { id: 'chat', label: 'AI Chat', icon: <MessageSquare />, to: '/chat' },
     { id: 'forecast', label: 'Forecast', icon: <TrendingUp />, to: '/forecast' },
     { id: 'blockchain', label: 'Blockchain', icon: <ShieldCheck />, to: '/blockchain' },
+    { id: 'settings', label: 'Settings', icon: <Settings />, to: '/settings' },
   ];
 
   return (

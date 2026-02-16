@@ -10,7 +10,7 @@ import DashboardLayout from './components/DashboardLayout';
 import AuthView from './components/AuthView';
 import UploadSection from './components/UploadSection';
 import ForecastResults from './components/ForecastResults';
-
+import SettingsView from './components/Settings/SettingsView';
 
 import { askMoneyAI } from "./services/aiService";
 import { calculateFinance } from "./utils/financeUtils";
@@ -102,6 +102,9 @@ const App = () => {
 
           {/* URL: /blockchain */}
           <Route path="blockchain" element={<BlockchainView />} />
+
+          {/* URL: /seetings */}
+          <Route path="settings" element={<SettingsView />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

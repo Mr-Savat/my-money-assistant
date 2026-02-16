@@ -1,25 +1,49 @@
 import React, { useState } from 'react';
-
+import { sendNotificationEmail } from '../services/emailService';
 const AuthView = ({ mode }) => {
   const [email, setEmail] = useState('');
   // 1. Add state for the name
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const savedUserString = localStorage.getItem('user_data');
     const savedUser = savedUserString ? JSON.parse(savedUserString) : null;
 
     if (mode === 'register') {
-      // Save new user
-      localStorage.setItem('user_data', JSON.stringify({ email, password, name }));
+      // --- REGISTRATION LOGIC ---
+      localStorage.setItem('user_notifications', JSON.stringify({ email: true, push: true }));
+      const newUser = { email, password, name };
+      localStorage.setItem('user_data', JSON.stringify(newUser));
+
+      try {
+        await sendNotificationEmail(
+          "Welcome to MoneyAI!",
+          `Hi ${name}, thank you for joining MoneyAI!`
+        );
+      } catch (error) {
+        console.error("Welcome email failed:", error);
+      }
+
       alert("Account created! Please login.");
       window.location.href = "/login";
     } else {
-      // LOGIN LOGIC: Check if credentials match
+      // --- LOGIN LOGIC ---
       if (savedUser && savedUser.email === email && savedUser.password === password) {
+
+        // 1. Send Login Notification Email
+        try {
+          await sendNotificationEmail(
+            "New Login Detected",
+            `Hello ${savedUser.name}, a new login to your MoneyAI account was detected on ${new Date().toLocaleString()}.`
+          );
+        } catch (error) {
+          console.error("Login notification failed:", error);
+          // We don't block the login if the email fails to send
+        }
+
+        // 2. Set authenticated status and redirect
         localStorage.setItem('isAuthenticated', 'true');
         window.location.href = "/";
       } else {
