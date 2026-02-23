@@ -56,7 +56,7 @@ function DangerZone() {
                             <AlertCircle size={20} />
                             <p className="text-sm font-medium">Delete account (Requires Email Verification)</p>
                         </div>
-                        <button onClick={startDeletionProcess} className="px-6 py-2.5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-all">
+                        <button onClick={startDeletionProcess} className="px-6 py-2.5 cursor-pointer bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-all">
                             Delete Account
                         </button>
                     </div>

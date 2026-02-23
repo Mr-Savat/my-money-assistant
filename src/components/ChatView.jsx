@@ -1,6 +1,6 @@
 import { Send, Bot, User } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
+
 const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
   const messagesEndRef = useRef(null);
 
@@ -8,118 +8,128 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading]);
 
+  // ++++++++++ Function សម្រាប់សម្អាត Markdown (បើចាំបាច់) ++++++++++
+  const cleanMarkdown = (text) => {
+    if (!text) return text;
+    
+    // លុប Markdown symbols
+    return text
+      .replace(/\*\*/g, '') // លុប **
+      .replace(/\*/g, '')    // លុប *
+      .replace(/#/g, '')     // លុប #
+      .replace(/`/g, '')     // លុប `
+      .replace(/\[/g, '')    // លុប [
+      .replace(/\]/g, '')    // លុប ]
+      .replace(/\(/g, '')    // លុប (
+      .replace(/\)/g, '')    // លុប )
+      .trim();
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
+    <div className="flex flex-col h-screen bg-slate-50">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="w-20 h-20 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
-              <Bot className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Money Assist AI
-            </h2>
-            <p className="text-gray-600 max-w-md">
-              Hello! I am your financial assistant. You can ask anything to better manage your finances.
-            </p>
-          </div>
-        ) : (
-          messages.map((m, i) => (
-            <div
-              key={i}
-              className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'
-                } animate-fadeIn`}
-            >
-              {m.role === 'ai' && (
-                <div className="w-8 h-8 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0shadow-md">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-              )}
-
-              <div className={`px-2 py-1 ${m.role === 'user'
-                ? 'text-right text-indigo-700'
-                : 'text-left text-gray-800'
-                }`}>
-
-                <article className="prose prose-sm max-w-none text-inherit prose-p:my-1 prose-li:my-0">
-
-                  <ReactMarkdown
-                    components={{
-                      p: ({ children }) => <span className="inline">{children}</span>
-                    }}
-                  >
-                    {m.text}
-                  </ReactMarkdown>
-
-                  {loading && i === messages.length - 1 && m.role === 'ai' && (
-                    <span className="animate-pulse ml-1 font-bold text-gray-900">
-                      ▌
-                    </span>
-                  )}
-
-                </article>
-
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+              <div className="w-20 h-20 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-xl animate-bounce-slow">
+                <Bot className="w-10 h-10 text-white" />
               </div>
-
-              {m.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-linear-to-br from-gray-600 to-gray-700 flex items-center justify-center shrink-0shadow-md">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-              )}
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Money Assist AI</h2>
+              <p className="text-gray-500 max-w-sm">
+                Hello! I am your financial assistant. Ask me anything to better manage your finances.
+              </p>
             </div>
-          ))
-        )}
+          ) : (
+            messages.map((m, i) => (
+              <div
+                key={i}
+                className={`flex gap-3 ${
+                  m.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+                } animate-fadeIn`}
+              >
+                {/* Avatar */}
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                    m.role === 'ai'
+                      ? 'bg-linear-to-br from-indigo-500 to-purple-600'
+                      : 'bg-gray-700'
+                  }`}
+                >
+                  {m.role === 'ai' ? (
+                    <Bot className="w-5 h-5 text-white" />
+                  ) : (
+                    <User className="w-5 h-5 text-white" />
+                  )}
+                </div>
 
-        <div ref={messagesEndRef} />
+                {/* Message Bubble */}
+                <div
+                  className={`flex flex-col ${
+                    m.role === 'user' ? 'items-end' : 'items-start'
+                  } max-w-[85%] sm:max-w-[70%]`}
+                >
+                  <div
+                    className={`px-4 py-3 rounded-2xl shadow-sm ${
+                      m.role === 'user'
+                        ? 'bg-indigo-600 text-white rounded-tr-none'
+                        : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
+                    }`}
+                  >
+                    {/* ++++++++++ លុប ReactMarkdown ប្រើ Text ធម្មតា ++++++++++ */}
+                    <p className="text-sm whitespace-pre-wrap wrap-break-word">
+                      {m.role === 'ai' ? cleanMarkdown(m.text) : m.text}
+                    </p>
+
+                    {loading && i === messages.length - 1 && m.role === 'ai' && (
+                      <span className="animate-pulse ml-1 font-bold">|</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input Area */}
-      <div className="border-t bg-white/80 backdrop-blur-sm shadow-lg">
+      <div className="border-t bg-white/80 backdrop-blur-md p-4 pb-safe mb-3">
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (input.trim() && !loading) {
-              handleSend();
-            }
+            if (input.trim() && !loading) handleSend();
           }}
-          className="p-4 max-w-4xl mx-auto"
+          className="max-w-4xl mx-auto flex gap-3"
         >
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={loading}
-              className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 disabled:bg-gray-50 disabled:text-gray-500 transition-all text-sm"
-              placeholder={
-                loading
-                  ? "Waiting for a response..."
-                  : "Ask something about your finances..."
-              }
-            />
-            <button
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-6 py-3 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
-            >
-              <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">Send</span>
-            </button>
-          </div>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+            className="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 disabled:bg-gray-100 transition-all text-sm"
+            placeholder={loading ? 'Thinking...' : 'Ask about your finances...'}
+          />
+          <button
+            type="submit"
+            disabled={loading || !input.trim()}
+            className="bg-indigo-600 text-white rounded-xl px-5 py-3 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium"
+          >
+            <Send className="w-4 h-4" />
+            <span className="hidden sm:inline">Send</span>
+          </button>
         </form>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(8px);
           }
           to {
             opacity: 1;
@@ -127,7 +137,22 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
           }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        .animate-bounce-slow {
+          animation: bounce 3s infinite;
+        }
+        @keyframes bounce {
+          0%,
+          100% {
+            transform: translateY(-5%);
+          }
+          50% {
+            transform: translateY(0);
+          }
+        }
+        .pb-safe {
+          padding-bottom: max(1rem, env(safe-area-inset-bottom));
         }
       `}</style>
     </div>

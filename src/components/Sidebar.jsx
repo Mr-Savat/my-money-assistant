@@ -3,19 +3,25 @@ import { LogOut, LayoutDashboard, MessageSquare, TrendingUp, ShieldCheck, Settin
 
 const NavItem = ({ icon, label, to }) => {
   const location = useLocation();
-  // Check if current URL matches the "to" path
-  const active = location.pathname === to;
+
+  const active =
+    to === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(to);
 
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${active ? 'bg-indigo-700 text-yellow-400' : 'hover:bg-indigo-800 text-indigo-200'
+      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${active
+        ? "bg-indigo-700 text-yellow-400"
+        : "hover:bg-indigo-800 text-indigo-200"
         }`}
     >
       {icon} <span>{label}</span>
     </Link>
   );
 };
+
 
 const Sidebar = ({ onLogout }) => {
   const menuItems = [
@@ -27,7 +33,7 @@ const Sidebar = ({ onLogout }) => {
   ];
 
   return (
-    <nav className="w-64 bg-indigo-900 text-white p-6 hidden md:flex flex-col justify-between">
+    <nav className="w-54 bg-indigo-900 text-white p-6 hidden md:flex flex-col justify-between">
       <div>
         <Link to="/" className="inline-block mb-10 group">
           <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400 group-hover:text-yellow-300 transition-colors">

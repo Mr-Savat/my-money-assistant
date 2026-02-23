@@ -6,7 +6,7 @@ const Toggle = ({ enabled, onChange, ariaLabel }) => (
         aria-checked={enabled}
         aria-label={ariaLabel}
         onClick={() => onChange(!enabled)}
-        className={`relative inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${enabled ? 'bg-linear-to-r from-blue-500 to-indigo-600' : 'bg-gray-200'
+        className={`relative cursor-pointer inline-flex h-7 w-14 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${enabled ? 'bg-linear-to-r from-blue-500 to-indigo-600' : 'bg-gray-200'
             }`}
     >
         <span
