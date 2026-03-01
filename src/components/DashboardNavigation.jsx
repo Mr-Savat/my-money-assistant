@@ -53,67 +53,69 @@ function DashboardNavigation() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 lg:mb-10 gap-3 sm:gap-4">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 tracking-tight">
                     Welcome, {userName}!
                 </h1>
-                <p className="text-gray-500 font-medium">
+                <p className="text-xs sm:text-sm lg:text-base text-gray-500 font-medium">
                     Here's what's happening with your money today.
                 </p>
             </div>
 
-            <div className="flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 px-3 border-r border-gray-100">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden">
-                        {userImage ? (
-                            <img
-                                src={userImage}
-                                alt={userName}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <span className="text-lg font-black">
-                                {userName.charAt(0).toUpperCase()}
-                            </span>
-                        )}
-                    </div>
-                    <div className="hidden sm:block">
-                        <p className="text-sm font-bold leading-none">{userName}</p>
-                    </div>
-                </div>
+            <div className="flex items-center gap-2 sm:gap-4 bg-white p-1.5 sm:p-2 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 w-full sm:w-auto">
+            <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 border-r border-gray-100 flex-1 sm:flex-initial">
+    <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden">
+        {userImage ? (
+            <img
+                src={userImage}
+                alt={userName}
+                className="w-full h-full object-cover"
+            />
+        ) : (
+            <span className="text-base sm:text-lg lg:text-lg font-black">
+                {userName.charAt(0).toUpperCase()}
+            </span>
+        )}
+    </div>
+    <div className="block">
+        <p className="text-xs sm:text-sm font-bold leading-none truncate max-w-15 sm:max-w-25">
+            {userName}
+        </p>
+    </div>
+</div>
 
-                {/*  Bell Button  */}
+                {/* Bell Button */}
                 <div className="relative">
                     <button
                         onClick={() => setShowNotifications(!showNotifications)}
-                        className={`p-2 transition-colors relative rounded-xl ${
+                        className={`p-1.5 sm:p-2 transition-colors relative rounded-lg sm:rounded-xl ${
                             isAnyNotificationOn() 
-                                ? 'text-indigo-600 bg-indigo-50'  //  Active: មាន Toggle បើក 
+                                ? 'text-indigo-600 bg-indigo-50'
                                 : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50'
                         }`}
                     >
-                        <Bell size={20} className='cursor-pointer'/>
+                        <Bell size={16} className="sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 cursor-pointer" />
                     </button>
 
-                    {/* Notifications Panel */}
+                    {/* Notifications Panel - Responsive */}
                     {showNotifications && (
                         <>
                             <div
                                 className="fixed inset-0 z-40"
                                 onClick={() => setShowNotifications(false)}
                             ></div>
-                            <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
-                                <div className="sticky top-0 bg-white p-4 border-b border-gray-100 flex justify-between items-center z-10">
-                                    <h3 className="font-black text-gray-900">Notification Settings</h3>
+                            <div className="absolute right-0 mt-2 w-72 sm:w-80 lg:w-96 bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[70vh] sm:max-h-[80vh] overflow-y-auto">
+                                <div className="sticky top-0 bg-white p-3 sm:p-4 border-b border-gray-100 flex justify-between items-center z-10">
+                                    <h3 className="text-sm sm:text-base lg:text-lg font-black text-gray-900">Notification Settings</h3>
                                     <button
                                         onClick={() => setShowNotifications(false)}
                                         className="p-1 cursor-pointer hover:bg-gray-100 rounded-full"
                                     >
-                                        <span className="text-gray-400">✕</span>
+                                        <span className="text-gray-400 text-sm sm:text-base">✕</span>
                                     </button>
                                 </div>
-                                <div className="p-2">
+                                <div className="p-1 sm:p-2">
                                     <NotificationsSection />
                                 </div>
                             </div>

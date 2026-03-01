@@ -32,22 +32,22 @@ const ChartSection = ({ chartData,  formatCurrency }) => {
   const hasData = chartData && chartData.length > 0;
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
+    <div className="bg-white p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm">
+      <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2">
+        <span className="w-1 h-4 sm:h-5 bg-indigo-500 rounded-full"></span>
         Spending Trend (Expense)
       </h3>
 
-      <div className="h-80 relative">
+      <div className="h-60 sm:h-72 lg:h-80 relative">
 
         {/* No Data Message */}
         {!hasData && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/80 backdrop-blur-sm rounded-3xl">
-            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
-              <TrendingUp size={32} className="text-gray-400" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-xl sm:rounded-2xl flex items-center justify-center mb-2 sm:mb-3">
+              <TrendingUp size={24} className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-gray-400" />
             </div>
-            <p className="text-gray-400 font-bold text-sm mb-1">No Data Available</p>
-            <p className="text-gray-300 text-xs text-center max-w-50">
+            <p className="text-gray-400 font-bold text-xs sm:text-sm mb-1">No Data Available</p>
+            <p className="text-gray-300 text-[10px] sm:text-xs text-center max-w-36 sm:max-w-50 px-2">
               Upload a file or add transactions to see your spending trend
             </p>
           </div>
@@ -56,7 +56,10 @@ const ChartSection = ({ chartData,  formatCurrency }) => {
         {hasData ? (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{
-              top: 30
+              top: 20,
+              right: 10,
+              left: 0,
+              bottom: 0
             }}>
               <defs>
                 <linearGradient id="gradExpense" x1="0" y1="0" x2="0" y2="1">
@@ -66,29 +69,41 @@ const ChartSection = ({ chartData,  formatCurrency }) => {
               </defs>
 
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-              <XAxis dataKey="month" axisLine={{ stroke: "#E2E8F0", strokeWidth: 2 }} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 12 }} />
-              <YAxis dy={-10}  axisLine={{ stroke: "#E2E8F0", strokeWidth: 2 }} tickLine={false} tickFormatter={formatCurrency} tick={{ fill: '#94A3B8', fontSize: 12 }} />
+              <XAxis 
+                dataKey="month" 
+                axisLine={{ stroke: "#E2E8F0", strokeWidth: 1.5 }} 
+                tickLine={false} 
+                tick={{ fill: '#94A3B8', fontSize: 10 }} 
+              />
+              <YAxis 
+                dy={-8} 
+                axisLine={{ stroke: "#E2E8F0", strokeWidth: 1.5 }} 
+                tickLine={false} 
+                tickFormatter={formatCurrency} 
+                tick={{ fill: '#94A3B8', fontSize: 10 }} 
+                width={45}
+              />
 
-              {/*  ប្រើ CustomTooltip ដែលបានកំណត់ខាងក្រៅ  */}
+              {/* Custom Tooltip */}
               <Tooltip content={<CustomTooltip formatCurrency={formatCurrency} />} />
 
               <Area
                 type="monotone"
                 dataKey="actualDisplay"
                 stroke="#6366f1"
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fill="url(#gradExpense)"
-                dot={{ r: 4, fill: "#6366f1" }}
+                dot={{ r: 3 }}
               />
 
               <Area
                 type="monotone"
                 dataKey="predictedDisplay"
                 stroke="#f59e0b"
-                strokeWidth={3}
+                strokeWidth={2.5}
                 strokeDasharray="5 5"
                 fill="transparent"
-                dot={{ r: 4, fill: "#f59e0b" }}
+                dot={{ r: 3, fill: "#f59e0b" }}
               />
             </AreaChart>
           </ResponsiveContainer>

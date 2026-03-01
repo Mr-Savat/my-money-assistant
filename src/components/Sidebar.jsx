@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, LogOut, LayoutDashboard, MessageSquare, TrendingUp, ShieldCheck, Settings } from 'lucide-react';
+import { 
+  X, LogOut, LayoutDashboard, MessageSquare, TrendingUp, 
+  ShieldCheck, Settings, ChevronLeft, Moon, Sun 
+} from 'lucide-react'; // ++++++++++ បន្ថែម Moon និង Sun ++++++++++
 
 // Sub-component for individual links
-const NavItem = ({ icon, label, to }) => {
+const NavItem = ({ icon, label, to, expanded }) => {
   const location = useLocation();
 
-  // Check if current path matches the link "to" prop
   const active =
     to === "/"
       ? location.pathname === "/"
@@ -14,20 +17,43 @@ const NavItem = ({ icon, label, to }) => {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
+      className={`relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
         active
           ? "bg-indigo-700 text-yellow-400 shadow-md"
           : "hover:bg-indigo-800 text-indigo-200"
       }`}
     >
-      {/* Ensure the icon inherits the color by just passing it through */}
-      {icon} 
-      <span className="font-medium">{label}</span>
+      <span className="shrink-0">{icon}</span>
+
+      {/* Label slides in */}
+      <span
+        className={`font-medium whitespace-nowrap transition-all duration-300 overflow-hidden ${
+          expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+        }`}
+      >
+        {label}
+      </span>
+
+      {/* Tooltip when not expanded */}
+      {!expanded && (
+        <span className="
+          absolute left-full ml-4 px-2.5 py-1.5 rounded-md text-xs font-semibold
+          bg-gray-900 text-white shadow-xl whitespace-nowrap
+          opacity-0 group-hover:opacity-100 pointer-events-none
+          scale-95 group-hover:scale-100
+          transition-all duration-150 z-200
+        ">
+          {label}
+          <span className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900" />
+        </span>
+      )}
     </Link>
   );
 };
 
-const Sidebar = ({ onLogout, isOpen, toggleSidebar }) => {
+const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) => { // ++++++++++ បន្ថែម props ++++++++++
+  const [expanded, setExpanded] = useState(true);
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} />, to: '/' },
     { id: 'chat', label: 'AI Chat', icon: <MessageSquare size={20} />, to: '/chat' },
@@ -40,49 +66,120 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar }) => {
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
           onClick={toggleSidebar}
         />
       )}
 
-      <nav className={`
-        fixed md:relative z-50 h-screen w-64 bg-indigo-900 text-white p-6 
-        transition-transform duration-300 ease-in-out flex flex-col justify-between
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-        md:translate-x-0
-      `}>
-        <div>
-          <div className="flex items-center justify-between mb-10">
-            <Link to="/" className="group" onClick={() => isOpen && toggleSidebar()}>
-              <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400">
-                <ShieldCheck className="group-hover:rotate-12 transition-transform" /> 
+      <nav
+        style={{ width: expanded ? '256px' : '68px' }}
+        className={`
+          fixed md:relative z-50 h-screen bg-indigo-900 text-white
+          transition-all duration-300 ease-in-out flex flex-col justify-between
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 overflow-hidden
+          shadow-2xl
+        `}
+      >
+        {/* Top section */}
+        <div className="p-3">
+          {/* Logo */}
+          <div className="flex items-center justify-between mb-6">
+            <Link
+              to="/"
+              className="group flex items-center gap-3 p-3 w-full rounded-lg hover:bg-indigo-800 transition-all duration-200"
+              onClick={() => isOpen && toggleSidebar()}
+            >
+              <ShieldCheck
+                size={20}
+                className="text-yellow-400 group-hover:rotate-12 transition-transform shrink-0"
+              />
+              <span
+                className={`text-lg font-bold text-yellow-400 whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                  expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                }`}
+              >
                 MoneyAI
-              </h1>
+              </span>
             </Link>
-            
-            {/* Close button for mobile */}
-            <button onClick={toggleSidebar} className="md:hidden text-indigo-200 hover:text-white cursor-pointer">
-              <X size={24} />
+
+            {/* Mobile close */}
+            <button
+              onClick={toggleSidebar}
+              className="md:hidden text-indigo-200 hover:text-white cursor-pointer shrink-0 p-3"
+            >
+              <X size={20} />
             </button>
           </div>
 
-          <div className="space-y-2">
+          {/* Nav items */}
+          <div className="space-y-1">
             {menuItems.map((item) => (
-              <div key={item.id} onClick={() => isOpen && toggleSidebar()}>
-                <NavItem {...item} />
+              <div key={item.id} className="group" onClick={() => isOpen && toggleSidebar()}>
+                <NavItem {...item} expanded={expanded} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Logout Button */}
-        <button
-          onClick={onLogout}
-          className="flex items-center gap-3 p-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-900/50 transition-all mt-auto"
-        >
-          <LogOut size={20} /> <span>Logout</span>
-        </button>
+        {/* Bottom: Dark Mode + Collapse + Logout */}
+        <div className="p-3">
+          {/* Divider */}
+          <div className={`border-t border-indigo-800 mb-3 transition-all duration-300 ${expanded ? "mx-0" : "mx-1"}`} />
+
+          {/* ++++++++++ Dark Mode Toggle ++++++++++ */}
+          <button
+            onClick={toggleDarkMode}
+            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-indigo-300 hover:bg-indigo-800 hover:text-white transition-all mb-1"
+          >
+            <span className="shrink-0" style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </span>
+            <span
+              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+              }`}
+            >
+              {darkMode ? "Light Mode" : "Dark Mode"}
+            </span>
+          </button>
+
+          {/* Collapse toggle button */}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-indigo-300 hover:bg-indigo-800 hover:text-white transition-all mb-1"
+          >
+            <span className="shrink-0" style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ChevronLeft
+                size={20}
+                className={`transition-transform duration-300 ${expanded ? "" : "rotate-180"}`}
+              />
+            </span>
+            <span
+              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+              }`}
+            >
+              Collapse
+            </span>
+          </button>
+
+          {/* Logout */}
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-red-400 hover:bg-red-900/50 transition-all"
+          >
+            <span className="shrink-0"><LogOut size={20} /></span>
+            <span
+              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+              }`}
+            >
+              Logout
+            </span>
+          </button>
+        </div>
       </nav>
     </>
   );

@@ -68,37 +68,40 @@ function DashboardChart() {
     const formatMoney = (value) => `$${value?.toLocaleString()}`;
 
     return (
-        <div className="lg:col-span-2 bg-white p-8 rounded-4xl border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-10">
+        <div className="lg:col-span-2 bg-white p-4 sm:p-5 md:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 lg:mb-8">
                 <div>
-                    <h3 className="text-xl font-black tracking-tight">Financial Forecast</h3>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest">Live from LocalStorage</p>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-black tracking-tight">Financial Forecast</h3>
+                    <p className="text-[8px] sm:text-[9px] lg:text-[10px] text-gray-400 font-bold uppercase mt-0.5 sm:mt-1 tracking-widest">Live from LocalStorage</p>
                 </div>
-                <div className="flex gap-4">
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500"></span><span className="text-[10px] font-bold uppercase text-gray-400">Income</span></div>
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-indigo-500"></span><span className="text-[10px] font-bold uppercase text-gray-400">Expense</span></div>
+                <div className="flex gap-2 sm:gap-3 lg:gap-4">
+                    <div className="flex items-center gap-1 sm:gap-2"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></span><span className="text-[8px] sm:text-[9px] lg:text-[10px] font-bold uppercase text-gray-400">Income</span></div>
+                    <div className="flex items-center gap-1 sm:gap-2"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-indigo-500"></span><span className="text-[8px] sm:text-[9px] lg:text-[10px] font-bold uppercase text-gray-400">Expense</span></div>
                 </div>
             </div>
 
-            <div className="h-100 relative">
+            <div className="h-64 sm:h-72 md:h-80 lg:h-96 relative">
+                
 
-                {/* បន្ថែម No Data Message */}
+                {/* No Data Message */}
                 {!hasData && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/80 backdrop-blur-sm rounded-4xl">
-                        <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mb-4">
-                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl lg:rounded-4xl">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gray-100 rounded-xl sm:rounded-2xl lg:rounded-3xl flex items-center justify-center mb-2 sm:mb-3 lg:mb-4">
+                            <svg className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                         </div>
-                        <p className="text-gray-400 font-bold text-sm mb-1">No Data Available</p>
-                        <p className="text-gray-300 text-xs">Add transactions to see your chart</p>
+                        <p className="text-gray-400 font-bold text-xs sm:text-sm mb-0.5 sm:mb-1">No Data Available</p>
+                        <p className="text-gray-300 text-[10px] sm:text-xs">Add transactions to see your chart</p>
                     </div>
                 )}
 
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData} margin={{
-                        top: 30,
-                        right: 30,
+                        top: 20,
+                        right: 15,
+                        left: 0,
+                        // bottom: 5
                     }}>
                         <defs>
                             <linearGradient id="gradIncome" x1="0" y1="0" x2="0" y2="1">
@@ -119,35 +122,34 @@ function DashboardChart() {
                             allowDataOverflow={false}
                             dataKey="name"
                             interval="preserveStartEnd"
-                            minTickGap={30}
-                            axisLine={{ stroke: "#E2E8F0", strokeWidth: 2 }}
+                            minTickGap={20}
+                            axisLine={{ stroke: "#E2E8F0", strokeWidth: 1.5 }}
                             tickLine={false}
                             tickFormatter={formatDate}
-                            tick={{ fill: "#94A3B8", fontSize: 12 }}
-
+                            tick={{ fill: "#94A3B8", fontSize: 10 }}
                         />
 
                         <YAxis
-                            axisLine={{ stroke: "#E2E8F0", strokeWidth: 2 }}
+                            axisLine={{ stroke: "#E2E8F0", strokeWidth: 1.5 }}
                             tickLine={false}
                             tickFormatter={formatMoney}
-                            tick={{ fill: "#94A3B8", fontSize: 12 }}
-                            dy={-10}
+                            tick={{ fill: "#94A3B8", fontSize: 10 }}
+                            dy={-8}
+                            width={40}
                         />
 
                         <Tooltip
                             labelFormatter={formatDate}
                             formatter={(value, name) => [`$${value.toLocaleString()}`, name.toUpperCase()]}
-                            contentStyle={{ borderRadius: "16px", border: "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}
+                            contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}
                             cursor={{ stroke: "#94A3B8", strokeWidth: 1, strokeDasharray: "4 4" }}
                             wrapperStyle={{ outline: "none" }}
                             isAnimationActive={false}
                         />
 
-                        {/* ✅ income renders first (behind), expense on top — matches screenshot */}
-                        <Area type="basis" dataKey="income" stroke="#10b981" strokeWidth={4} fill="url(#gradIncome)" dot={false} />
-                        <Area type="basis" dataKey="expense" stroke="#6366f1" strokeWidth={4} fill="url(#gradExpense)" dot={false} />
-                        <Area type="basis" dataKey="forecast" stroke="#F59E0B" strokeWidth={4} strokeDasharray="8 8" fill="transparent" dot={false} />
+                        <Area type="basis" dataKey="income" stroke="#10b981" strokeWidth={3} fill="url(#gradIncome)" dot={false} />
+                        <Area type="basis" dataKey="expense" stroke="#6366f1" strokeWidth={3} fill="url(#gradExpense)" dot={false} />
+                        <Area type="basis" dataKey="forecast" stroke="#F59E0B" strokeWidth={3} strokeDasharray="6 6" fill="transparent" dot={false} />
                     </AreaChart>
                 </ResponsiveContainer>
             </div>

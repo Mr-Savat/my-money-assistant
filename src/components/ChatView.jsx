@@ -30,7 +30,7 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen md:h-full bg-slate-50 overflow-hidden">
+    <div className="flex flex-col h-full bg-slate-50">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">

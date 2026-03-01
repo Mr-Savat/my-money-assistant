@@ -5,14 +5,21 @@ import DashboardSummaryCards from './DashboardSummaryCards';
 
 const Dashboard = () => {
   return (
-    <div className="h-screen overflow-y-auto bg-[#F8FAFC] p-4 md:p-8 text-[#1E293B] font-sans">
+    <div className="overflow-y-auto bg-[#F8FAFC] p-4 md:p-8 text-[#1E293B] font-sans">
       <div className="max-w-7xl mx-auto">
         <DashboardNavigation />
         <DashboardSummaryCards />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <DashboardChart />
-          <DashboardTransactions />
-        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+  {/* Chart - 2/3 width */}
+  <div className="xl:col-span-2 h-full">
+    <DashboardChart />
+  </div>
+  
+  {/* Transactions - 1/3 width */}
+  <div className="xl:col-span-1 h-full">
+    <DashboardTransactions />
+  </div>
+</div>
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ const CustomTooltip = ({ active, payload }) => {
         const isOther = name.includes("Other");
 
         return (
-            <div className="bg-white/95 backdrop-blur-sm p-4 shadow-2xl rounded-2xl border border-gray-100 min-w-[180px] animate-in fade-in zoom-in duration-200">
+            <div className="bg-white/95 backdrop-blur-sm p-4 shadow-2xl rounded-2xl border border-gray-100 min-w-45 animate-in fade-in zoom-in duration-200">
                 <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: fill }} />
                     <p className="text-[11px] uppercase tracking-wider font-bold text-gray-400">{name}</p>
@@ -101,29 +101,31 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
     const hasData = data.length > 0;
 
     return (
-        <div className="bg-gray-50 p-8 rounded-4xl border border-gray-100 flex flex-col relative transition-all duration-300 hover:shadow-sm">
-            <h3 className="font-bold text-gray-700 mb-8 flex justify-center items-center gap-2 text-sm">
-                <PieIcon size={18} className="text-indigo-500" /> Category Breakdown Expense
-                {hasData && <span className="text-[10px] text-gray-500 font-normal ml-2 tracking-tight">(This Month)</span>}
+
+            <div className="bg-gray-50 p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 flex flex-col relative transition-all duration-300 hover:shadow-sm h-full">
+            <h3 className="font-bold text-gray-700 mb-4 sm:mb-6 lg:mb-8 flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                <PieIcon size={14} className="sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5 text-indigo-500" /> 
+                <span>Category Breakdown Expense</span>
+                {hasData && <span className="text-[8px] sm:text-[10px] text-gray-500 font-normal ml-1 tracking-tight">(This Month)</span>}
             </h3>
 
-            <div className="h-64 flex-1 relative">
+            <div className="h-48 sm:h-56 lg:h-64 flex-1 relative">
                 {!hasData && (
-                    <div className="absolute inset-0 flex items-center justify-center z-10 text-gray-400 font-medium text-sm italic">
+                    <div className="absolute inset-0 flex items-center justify-center z-10 text-gray-400 font-medium text-xs sm:text-sm italic px-4 text-center">
                         No expense data this month
                     </div>
                 )}
 
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                         <Pie
                             data={hasData ? data : [{ name: 'Empty', value: 1 }]}
-                            innerRadius={70}
-                            outerRadius={90}
+                            innerRadius={50} // Smaller for mobile
+                            outerRadius={70} // Smaller for mobile
                             paddingAngle={hasData ? 5 : 0}
                             dataKey="value"
                             stroke="none"
-                            activeShape={hasData ? renderActiveShape : null} // Hover effect
+                            activeShape={hasData ? renderActiveShape : null}
                             animationBegin={0}
                             animationDuration={1200}
                         >
@@ -152,12 +154,12 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
                             <Legend
                                 verticalAlign="bottom"
                                 iconType="circle"
-                                iconSize={8}
-                                wrapperStyle={{ paddingTop: '20px' }}
+                                iconSize={6}
+                                wrapperStyle={{ paddingTop: '15px' }}
                                 formatter={(value) => {
                                     const item = data.find(d => d.name === value);
                                     return (
-                                        <span className="text-[11px] font-semibold text-gray-600 ml-1">
+                                        <span className="text-[9px] sm:text-[10px] lg:text-[11px] font-semibold text-gray-600 ml-1">
                                             {value} <span className="text-gray-400 font-normal ml-1">(${item?.value.toLocaleString()})</span>
                                         </span>
                                     );
@@ -169,10 +171,10 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
             </div>
 
             {hasData && (
-                <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200">
                     <div className="flex justify-between items-center">
-                        <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Monthly Spend</span>
-                        <span className="text-sm font-black text-gray-800">
+                        <span className="text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-bold">Monthly Spend</span>
+                        <span className="text-xs sm:text-sm font-black text-gray-800">
                             ${data.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
                         </span>
                     </div>

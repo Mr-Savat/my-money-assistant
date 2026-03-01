@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import { Upload, Download, AlertCircle, X, ChevronDown } from 'lucide-react'; // ++++++++++ បន្ថែម X icon ++++++++++
+import { Upload, Download, AlertCircle, X, ChevronDown } from 'lucide-react'; //  បន្ថែម X icon 
 import PieSection from './PieSectionForecast';
 import SummaryCards from './CardsForecast';
 import ChartSection from './ChartSectionForecast';
-import { saveTransactions, parseUploadedFile, downloadTemplate, downloadMonthlyTemplate  } from '../utils/transactionUtils';
+import { saveTransactions, parseUploadedFile, downloadTemplate, downloadMonthlyTemplate } from '../utils/transactionUtils';
 import DuplicateSummaryModal from '../components/DuplicateSummaryModal';
 import UploadOptionsModal from '../components/UploadOptionsModal';
 
@@ -34,16 +34,16 @@ const ForecastView = () => {
     roseBg: "#fff1f2"
   };
 
-    // ++++++++++ Function សម្រាប់ទាញយក Template ផ្សេងៗ ++++++++++
-    const handleDownloadTransactionTemplate = () => {
-      downloadTemplate(); // Transaction Data Format
-      setShowTemplateDropdown(false);
-    };
+  //  Function សម្រាប់ទាញយក Template ផ្សេងៗ 
+  const handleDownloadTransactionTemplate = () => {
+    downloadTemplate(); // Transaction Data Format
+    setShowTemplateDropdown(false);
+  };
 
-    const handleDownloadMonthlyTemplate = () => {
-      downloadMonthlyTemplate(); // Monthly Summary Format
-      setShowTemplateDropdown(false);
-    };
+  const handleDownloadMonthlyTemplate = () => {
+    downloadMonthlyTemplate(); // Monthly Summary Format
+    setShowTemplateDropdown(false);
+  };
 
   useEffect(() => {
     const savedData = localStorage.getItem('forecastStorage');
@@ -77,13 +77,13 @@ const ForecastView = () => {
       { name: 'Shopping', amount: monthData.shopping || 0 },
       { name: 'Other', amount: monthData.other || 0 }
     ];
-    
+
     const top = categories.reduce((max, cat) => cat.amount > max.amount ? cat : max);
-    
+
     if (top.amount === 0) return null;
-    
+
     const total = categories.reduce((sum, cat) => sum + cat.amount, 0);
-    
+
     return {
       name: top.name,
       amount: top.amount,
@@ -103,34 +103,34 @@ const ForecastView = () => {
     try {
       const jsonData = await parseUploadedFile(file);
 
-     // ++++++++++ ពិនិត្យមើលឲ្យបានបត់បែនជាងមុន ++++++++++
-if (jsonData && jsonData.length > 0) {
-  const firstRow = jsonData[0];
-  const columns = Object.keys(firstRow).map(key => key.trim().toLowerCase());
-  
-  // ពិនិត្យរក month column (អាចមាន spaces ឬ uppercase)
-  if (columns.includes('month') && 
-      (columns.includes('food') || columns.includes('transport'))) {
-    // Monthly Summary
-    console.log("✅ Detected Monthly Summary format");
-    processForecasting(jsonData);
-  } 
-  // ពិនិត្យរក date column
-  else if (columns.includes('date') && 
-           (columns.includes('amount') || columns.includes('description'))) {
-    // Transaction Data
-    console.log("✅ Detected Transaction Data format");
-    setUploadFileData(jsonData);
-    setUploadFileName(file.name);
-    setShowUploadModal(true);
-  } 
-  else {
-    console.log("❌ Unknown format. Columns:", columns);
-    setError("Unknown data format. Please use the template.");
-  }
-} else {
-  setError("File is empty");
-}
+      //  ពិនិត្យមើលឲ្យបានបត់បែនជាងមុន 
+      if (jsonData && jsonData.length > 0) {
+        const firstRow = jsonData[0];
+        const columns = Object.keys(firstRow).map(key => key.trim().toLowerCase());
+
+        // ពិនិត្យរក month column (អាចមាន spaces ឬ uppercase)
+        if (columns.includes('month') &&
+          (columns.includes('food') || columns.includes('transport'))) {
+          // Monthly Summary
+          console.log("✅ Detected Monthly Summary format");
+          processForecasting(jsonData);
+        }
+        // ពិនិត្យរក date column
+        else if (columns.includes('date') &&
+          (columns.includes('amount') || columns.includes('description'))) {
+          // Transaction Data
+          console.log("✅ Detected Transaction Data format");
+          setUploadFileData(jsonData);
+          setUploadFileName(file.name);
+          setShowUploadModal(true);
+        }
+        else {
+          console.log("❌ Unknown format. Columns:", columns);
+          setError("Unknown data format. Please use the template.");
+        }
+      } else {
+        setError("File is empty");
+      }
     } catch (err) {
       setError(err.message || "Problem reading data. Check file format.");
     }
@@ -138,7 +138,7 @@ if (jsonData && jsonData.length > 0) {
     e.target.value = '';
   };
 
-  // ++++++++++ Function សម្រាប់បិទ Error ++++++++++
+  //  Function សម្រាប់បិទ Error 
   const handleCloseError = () => {
     setError("");
   };
@@ -146,15 +146,15 @@ if (jsonData && jsonData.length > 0) {
   // Function សម្រាប់ Confirm Upload
   const handleUploadConfirm = (option) => {
     setShowUploadModal(false);
-    
+
     const data = uploadFileData;
-    
-    switch(option) {
+
+    switch (option) {
       case 'forecast':
         // Forecast only
         processForecastingFromTransactions(data);
         break;
-        
+
       case 'dashboard':
         // Dashboard only
         saveTransactions(data, {
@@ -183,7 +183,7 @@ if (jsonData && jsonData.length > 0) {
           }
         });
         break;
-        
+
       case 'both':
       default:
         // Both (Forecast + Dashboard)
@@ -303,7 +303,7 @@ if (jsonData && jsonData.length > 0) {
       }
     ];
 
-    const finalForecast = { 
+    const finalForecast = {
       nextMonth: nextMonth,
       nextValue: Math.round(nextValue),
       lastMonth: last.month,
@@ -335,58 +335,60 @@ if (jsonData && jsonData.length > 0) {
   };
 
   return (
-    <div className="p-8 bg-white min-h-screen text-gray-800 font-sans">
+    <div className="p-4 sm:p-6 lg:p-8 bg-white min-h-screen text-gray-800 font-sans">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
+        {/* Header - បន្ថែម flex-col លើ mobile, flex-row លើ desktop */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 lg:mb-10">
           <div>
-            <h2 className="text-3xl font-black text-gray-900 tracking-tight">Financial Forecast</h2>
-            <p className="text-gray-500 mt-1">Predicting your future spending patterns</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Financial Forecast</h2>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">Predicting your future spending patterns</p>
           </div>
 
-          <div className="flex gap-3">
+          {/* Button Group - បន្ថែម flex-wrap និង gap */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {forecast && (
               <button
                 onClick={handleReset}
-                className="px-6 py-3 rounded-2xl border border-red-100 font-bold text-sm text-red-500 hover:bg-red-50 transition-all"
+                className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-red-100 font-bold text-xs sm:text-sm text-red-500 hover:bg-red-50 transition-all"
               >
                 Clear Data
               </button>
             )}
 
-
-<div className="relative">
+            {/* Template Dropdown - រក្សាដូចដើម តែបន្ថែម responsive padding */}
+            <div className="relative">
               <button
                 onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-2xl cursor-pointer transition-all font-bold text-sm"
+                className="flex items-center gap-1 sm:gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all font-bold text-xs sm:text-sm"
               >
-                <Download size={20} />
+                <Download size={16} className="sm:w-5 sm:h-5" />
                 <span>Template</span>
-                <ChevronDown size={16} className={`transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`sm:w-4 sm:h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu - រក្សាដូចដើម */}
               {showTemplateDropdown && (
                 <>
-                  <div 
-                    className="fixed inset-0 z-40" 
+                  <div
+                    className="fixed inset-0 z-40"
                     onClick={() => setShowTemplateDropdown(false)}
                   ></div>
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-2">
+                  <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-1 sm:p-2">
                       <button
                         onClick={handleDownloadTransactionTemplate}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors"
+                        className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 rounded-lg sm:rounded-xl transition-colors"
                       >
-                        <p className="font-bold text-gray-700">Transaction Data</p>
-                        <p className="text-xs text-gray-400">date, description, amount, category</p>
+                        <p className="font-bold text-sm sm:text-base text-gray-700">Transaction Data</p>
+                        <p className="text-[10px] sm:text-xs text-gray-400">date, description, amount, category</p>
                       </button>
                       <div className="border-t border-gray-100 my-1"></div>
                       <button
                         onClick={handleDownloadMonthlyTemplate}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors"
+                        className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 rounded-lg sm:rounded-xl transition-colors"
                       >
-                        <p className="font-bold text-gray-700">Monthly Summary</p>
-                        <p className="text-xs text-gray-400">month, food, transport, shopping, other</p>
+                        <p className="font-bold text-sm sm:text-base text-gray-700">Monthly Summary</p>
+                        <p className="text-[10px] sm:text-xs text-gray-400">month, food, transport, shopping, other</p>
                       </button>
                     </div>
                   </div>
@@ -394,9 +396,10 @@ if (jsonData && jsonData.length > 0) {
               )}
             </div>
 
-            <label className="flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-8 py-3 rounded-2xl cursor-pointer transition-all shadow-xl active:scale-95">
-              <Upload size={20} />
-              <span className="font-bold text-sm">Upload Data</span>
+            {/* Upload Button - រក្សាដូចដើម តែបន្ថែម responsive padding */}
+            <label className="flex items-center gap-1 sm:gap-2 bg-gray-900 hover:bg-black text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all shadow-md sm:shadow-xl active:scale-95 font-bold text-xs sm:text-sm">
+              <Upload size={16} className="sm:w-5 sm:h-5" />
+              <span>Upload Data</span>
               <input
                 type="file"
                 className="hidden"
@@ -407,24 +410,26 @@ if (jsonData && jsonData.length > 0) {
           </div>
         </div>
 
-        {/* ++++++++++ Error Message with Close Button ++++++++++ */}
+        {/* Error Message - បន្ថែម responsive padding */}
         {error && (
-          <div className="mb-6 flex items-center justify-between bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={20} />
-              <span className="font-bold text-sm">{error}</span>
+          <div className="mb-4 sm:mb-6 flex items-center justify-between bg-red-50 border border-red-200 text-red-600 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <AlertCircle size={16} className="sm:w-5 sm:h-5" />
+              <span className="font-bold text-xs sm:text-sm">{error}</span>
             </div>
             <button
               onClick={handleCloseError}
               className="p-1 hover:bg-red-100 rounded-full transition-colors"
             >
-              <X size={18} />
+              <X size={14} className="sm:w-4 sm:h-4" />
             </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="lg:col-span-2 space-y-8">
+        {/* Main Grid - រក្សាដូចដើម តែបន្ថែម responsive gap */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Left Column - Chart + SummaryCards */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             <ChartSection
               chartData={chartData}
               forecast={forecast}
@@ -437,15 +442,18 @@ if (jsonData && jsonData.length > 0) {
             />
           </div>
 
-          <PieSection
-            transactions={transactions}
-            COLORS={COLORS}
-            formatCurrency={formatCurrency}
-          />
+          {/* Right Column - PieSection with fixed height */}
+          <div className="lg:col-span-1 h-full min-h-75 sm:min-h-87.5 lg:min-h-100">
+            <PieSection
+              transactions={transactions}
+              COLORS={COLORS}
+              formatCurrency={formatCurrency}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Upload Options Modal */}
+      {/* Modals - នៅដដែល */}
       {showUploadModal && (
         <UploadOptionsModal
           fileName={uploadFileName}
@@ -455,7 +463,6 @@ if (jsonData && jsonData.length > 0) {
         />
       )}
 
-      {/* Duplicate Modal */}
       {showDuplicateModal && (
         <DuplicateSummaryModal
           duplicates={duplicateInfo.duplicates}

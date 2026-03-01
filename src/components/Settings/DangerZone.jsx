@@ -49,36 +49,45 @@ function DangerZone() {
 
     return (
         <SettingSection title="Danger Zone" icon={Trash2} variant="danger" description="Permanently remove your account and all data. This action cannot be undone">
-            <div className="p-5 bg-red-50/50 border border-red-100 rounded-2xl">
+            <div className="p-4 sm:p-5 bg-red-50/50 border border-red-100 rounded-xl sm:rounded-2xl">
                 {step === 'initial' ? (
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 text-red-800">
-                            <AlertCircle size={20} />
-                            <p className="text-sm font-medium">Delete account (Requires Email Verification)</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                        <div className="flex items-center gap-2 sm:gap-3 text-red-800">
+                            <AlertCircle size={16} className="sm:w-5 sm:h-5" />
+                            <p className="text-xs sm:text-sm font-medium">Delete account (Requires Email Verification)</p>
                         </div>
-                        <button onClick={startDeletionProcess} className="px-6 py-2.5 cursor-pointer bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-all">
+                        <button 
+                            onClick={startDeletionProcess} 
+                            className="px-4 sm:px-6 py-2 sm:py-2.5 cursor-pointer bg-red-600 text-white rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-red-700 transition-all w-full sm:w-auto"
+                        >
                             Delete Account
                         </button>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-red-800">
-                            <Key size={20} />
-                            <p className="text-sm font-bold uppercase tracking-tight">Enter 6-Digit Code</p>
+                    <div className="space-y-3 sm:space-y-4">
+                        <div className="flex items-center gap-2 sm:gap-3 text-red-800">
+                            <Key size={16} className="sm:w-5 sm:h-5" />
+                            <p className="text-xs sm:text-sm font-bold uppercase tracking-tight">Enter 6-Digit Code</p>
                         </div>
                         <input
                             type="text"
                             maxLength="6"
                             placeholder="000000"
-                            className="w-full p-3 text-center text-2xl tracking-[10px] font-mono border-2 border-red-200 rounded-xl focus:border-red-500 outline-none"
+                            className="w-full p-2 sm:p-3 text-center text-lg sm:text-xl lg:text-2xl tracking-[6px] sm:tracking-[10px] font-mono border-2 border-red-200 rounded-lg sm:rounded-xl focus:border-red-500 outline-none"
                             value={userInputCode}
                             onChange={(e) => setUserInputCode(e.target.value)}
                         />
-                        <div className="flex gap-2">
-                            <button onClick={handleFinalDelete} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-800">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <button 
+                                onClick={handleFinalDelete} 
+                                className="flex-1 py-2 sm:py-3 bg-red-600 text-white rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-red-800"
+                            >
                                 Confirm Permanent Deletion
                             </button>
-                            <button onClick={() => setStep('initial')} className="px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold">
+                            <button 
+                                onClick={() => setStep('initial')} 
+                                className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm"
+                            >
                                 Cancel
                             </button>
                         </div>

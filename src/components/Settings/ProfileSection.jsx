@@ -95,10 +95,10 @@ function ProfileSection() {
                 icon={User}
                 variant="default"
             >
-                {/* Profile Image Section */}
-                <div className="mb-6 flex items-center gap-6">
-                    <div className="relative">
-                        <div className="w-24 h-24 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden">
+                {/* Profile Image Section - Responsive */}
+                <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                    <div className="relative mx-auto sm:mx-0">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden">
                             {imagePreview ? (
                                 <img 
                                     src={imagePreview} 
@@ -106,15 +106,15 @@ function ProfileSection() {
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <span className="text-4xl font-black">
+                                <span className="text-3xl sm:text-4xl font-black">
                                     {profile.name?.charAt(0).toUpperCase() || 'U'}
                                 </span>
                             )}
                         </div>
                         
                         {isEditing && (
-                            <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                                <Camera size={16} className="text-gray-600" />
+                            <label className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                                <Camera size={14} className="sm:w-4 sm:h-4 text-gray-600" />
                                 <input 
                                     type="file" 
                                     className="hidden" 
@@ -126,67 +126,68 @@ function ProfileSection() {
                     </div>
                     
                     {isEditing && (
-                        <div className="text-xs text-gray-400">
+                        <div className="text-center sm:text-left text-xs text-gray-400">
                             <p>Click the camera icon to change your profile picture</p>
                             <p className="mt-1">Supported: JPG, PNG, GIF (max 5MB)</p>
                         </div>
                     )}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                {/* Form Fields - Responsive grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4">
                     {/* Full Name Field */}
-                    <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Full Name</span>
+                    <div className="p-3 sm:p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Full Name</span>
                         {isEditing ? (
                             <input
                                 type="text"
-                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 mt-1 font-bold text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
                                 value={profile.name}
                                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                             />
                         ) : (
-                            <p className="font-bold text-gray-900 mt-1">{profile.name || "N/A"}</p>
+                            <p className="font-bold text-sm sm:text-base text-gray-900 mt-1">{profile.name || "N/A"}</p>
                         )}
                     </div>
 
                     {/* Email Field */}
-                    <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-100 transition-all focus-within:border-blue-300">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email Address</span>
+                    <div className="p-3 sm:p-4 bg-gray-50/50 rounded-xl border border-gray-100 transition-all focus-within:border-blue-300">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email Address</span>
                         {isEditing ? (
                             <input
                                 type="email"
-                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 mt-1 font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
+                                className="w-full bg-white border border-gray-200 rounded-lg px-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 outline-none focus:ring-2 focus:ring-blue-500/20"
                                 value={profile.email}
                                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                             />
                         ) : (
-                            <p className="font-bold text-gray-900 mt-1">{profile.email || "N/A"}</p>
+                            <p className="font-bold text-sm sm:text-base text-gray-900 mt-1">{profile.email || "N/A"}</p>
                         )}
                     </div>
                 </div>
 
-                {/* Edit Toggle Logic */}
+                {/* Edit Toggle Logic - Responsive buttons */}
                 {!isEditing ? (
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="flex items- cursor-pointer gap-2 text-blue-600 font-bold text-sm hover:underline p-2 group"
+                        className="flex items-center cursor-pointer gap-1 sm:gap-2 text-blue-600 font-bold text-xs sm:text-sm hover:underline p-2 group w-full sm:w-auto justify-center sm:justify-start"
                     >
                         Edit Public Profile
-                        <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                        <ChevronRight size={14} className="sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 ) : (
-                    <div className="flex gap-3 p-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-2">
                         <button
                             onClick={handleSave}
-                            className="flex items-center  cursor-pointer gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
+                            className="flex items-center justify-center cursor-pointer gap-1 sm:gap-2 bg-blue-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 w-full sm:w-auto"
                         >
-                            <Save size={16} /> Save Changes
+                            <Save size={14} className="sm:w-4 sm:h-4" /> Save Changes
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="flex items-center cursor-pointer gap-2 bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all active:scale-95"
+                            className="flex items-center justify-center cursor-pointer gap-1 sm:gap-2 bg-gray-100 text-gray-600 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm hover:bg-gray-200 transition-all active:scale-95 w-full sm:w-auto"
                         >
-                            <X size={16} /> Cancel
+                            <X size={14} className="sm:w-4 sm:h-4" /> Cancel
                         </button>
                     </div>
                 )}
