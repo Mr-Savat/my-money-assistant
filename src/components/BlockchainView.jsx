@@ -16,17 +16,16 @@ const BlockchainView = () => {
     { hash: '0x9c0d1e...6b7c8d', type: 'Swap', amount: '0.25 ETH → USDC', fromTo: 'Uniswap', time: '2026-01-29 18:45:10', status: 'Confirmed' },
     { hash: '0xa0b1c2...f7a8b9', type: 'Receive', amount: '250 USDC', fromTo: '0x5678...1234', time: '2026-01-28 12:00:00', status: 'Pending' },
   ];
-
   return (
-    <div className="min-h-screen overflow-hidden bg-gray-50/50 p-8 text-slate-900 space-y-8 animate-in fade-in duration-500">
+    <div className="min-h-screen overflow-y-auto bg-gray-50/50 p-4 sm:p-6 lg:p-8 text-slate-900 space-y-6 sm:space-y-8 animate-in fade-in duration-500">
 
-      {/* Header */}
+      {/* Header - Responsive */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">Blockchain Ledger</h1>
-          <p className="text-slate-500 text-sm">Verified cryptographic history of your assets</p>
+          <h1 className="text-xl sm:text-2xl lg:text-2xl font-black tracking-tight text-slate-900">Blockchain Ledger</h1>
+          <p className="text-slate-500 text-xs sm:text-sm">Verified cryptographic history of your assets</p>
         </div>
-        <div className="relative">
+        <div className="relative w-full md:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           <input
             type="text"
@@ -36,72 +35,84 @@ const BlockchainView = () => {
         </div>
       </header>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid - Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
-            <div className={`${stat.bg} w-12 h-12 rounded-2xl flex items-center justify-center mb-4`}>
+          <div key={i} className="bg-white border border-slate-100 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm">
+            <div className={`${stat.bg} w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4`}>
               {stat.icon}
             </div>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">{stat.label}</p>
-            <p className="text-3xl font-black mt-1 text-slate-900">{stat.value}</p>
+            <p className="text-slate-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest">{stat.label}</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black mt-1 text-slate-900">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Transaction Table */}
-      <div className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-800">Transaction History</h3>
+      {/* Transaction Table - Responsive */}
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-3xl shadow-sm overflow-hidden">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-slate-50 flex justify-between items-center">
+          <h3 className="text-base sm:text-lg font-bold text-slate-800">Transaction History</h3>
         </div>
 
+        {/* ++++++++++ កែត្រង់នេះ ++++++++++ */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50/50 text-slate-400 uppercase text-[10px] font-black tracking-widest">
+          <table className="min-w-[800px] md:min-w-full w-full text-left text-xs sm:text-sm">
+            <thead className="bg-slate-50/50 text-slate-400 uppercase text-[8px] sm:text-[10px] font-black tracking-widest">
               <tr>
-                <th className="px-8 py-4">Transaction Hash</th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">From / To</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-8 py-4 text-right">Actions</th>
+                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4">Transaction Hash</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Type</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Amount</th>
+                <th className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4">From / To</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4">Status</th>
+                <th className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {transactions.map((txn, idx) => (
                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-2 font-mono text-xs text-blue-600 font-medium">
-                      {txn.hash}
-                      <Copy size={14} className="cursor-pointer text-slate-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" />
+                  <td className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5">
+                    <div className="flex items-center gap-1 sm:gap-2 font-mono text-[10px] sm:text-xs text-blue-600 font-medium">
+                      <span className="truncate max-w-[80px] sm:max-w-none">{txn.hash}</span>
+                      <Copy size={12} className="cursor-pointer text-slate-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all shrink-0" />
                     </div>
                   </td>
-                  <td className="px-6 py-5">
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter ${txn.type === 'Receive' ? 'bg-emerald-100 text-emerald-700' :
+                  <td className="px-3 sm:px-6 py-3 sm:py-5">
+                    <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-tighter whitespace-nowrap ${
+                      txn.type === 'Receive' ? 'bg-emerald-100 text-emerald-700' :
                       txn.type === 'Send' ? 'bg-rose-100 text-rose-700' : 'bg-indigo-100 text-indigo-700'
-                      }`}>
+                    }`}>
                       {txn.type}
                     </span>
                   </td>
-                  <td className="px-6 py-5 font-bold text-slate-900">{txn.amount}</td>
-                  <td className="px-6 py-5 text-slate-500 text-xs font-medium">{txn.fromTo}</td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${txn.status === 'Confirmed' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
-                      <span className={`text-xs font-bold ${txn.status === 'Confirmed' ? 'text-slate-700' : 'text-amber-600'}`}>
-                        {txn.status}
+                  <td className="px-3 sm:px-6 py-3 sm:py-5 font-bold text-slate-900 text-xs sm:text-sm whitespace-nowrap">{txn.amount}</td>
+                  <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-5 text-slate-500 text-[10px] sm:text-xs font-medium truncate max-w-[100px]">{txn.fromTo}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-5">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
+                        txn.status === 'Confirmed' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'
+                      }`} />
+                      <span className={`text-[8px] sm:text-xs font-bold ${
+                        txn.status === 'Confirmed' ? 'text-slate-700' : 'text-amber-600'
+                      }`}>
+                        <span className="hidden sm:inline">{txn.status}</span>
+                        <span className="sm:hidden">{txn.status === 'Confirmed' ? '✓' : '⏳'}</span>
                       </span>
                     </div>
                   </td>
-                  <td className="px-8 py-5 text-right">
-                    <button className="text-slate-400 hover:text-blue-600 transition-colors">
-                      <ExternalLink size={18} />
+                  <td className="px-4 sm:px-6 lg:px-8 py-3 sm:py-5 text-right">
+                    <button className="text-slate-400 hover:text-blue-600 transition-colors p-1">
+                      <ExternalLink size={16} className="sm:w-[18px] sm:h-[18px]" />
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Mobile Hint */}
+        <div className="sm:hidden p-3 text-center text-[10px] text-slate-400 border-t border-slate-50">
+          ← → Scroll horizontally to see more
         </div>
       </div>
     </div>

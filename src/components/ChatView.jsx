@@ -12,7 +12,7 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
     scrollToBottom();
   }, [messages, loading]);
 
-  // ++++++++++ Function សម្រាប់សម្អាត Markdown (បើចាំបាច់) ++++++++++
+  //  Function សម្រាប់សម្អាត Markdown (បើចាំបាច់) 
   const cleanMarkdown = (text) => {
     if (!text) return text;
     
@@ -30,17 +30,17 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50">
+    <div className="flex flex-col h-screen md:h-full bg-slate-50 overflow-hidden">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-              <div className="w-20 h-20 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-6 shadow-xl animate-bounce-slow">
-                <Bot className="w-10 h-10 text-white" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-xl animate-bounce-slow">
+                <Bot className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Money Assist AI</h2>
-              <p className="text-gray-500 max-w-sm">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Money Assist AI</h2>
+              <p className="text-sm sm:text-base text-gray-500 max-w-xs sm:max-w-sm">
                 Hello! I am your financial assistant. Ask me anything to better manage your finances.
               </p>
             </div>
@@ -48,40 +48,39 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
             messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex gap-3 ${
+                className={`flex gap-2 sm:gap-3 ${
                   m.role === 'user' ? 'flex-row-reverse' : 'flex-row'
                 } animate-fadeIn`}
               >
-                {/* Avatar */}
+                {/* Avatar - responsive size */}
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
                     m.role === 'ai'
                       ? 'bg-linear-to-br from-indigo-500 to-purple-600'
                       : 'bg-gray-700'
                   }`}
                 >
                   {m.role === 'ai' ? (
-                    <Bot className="w-5 h-5 text-white" />
+                    <Bot className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
                   ) : (
-                    <User className="w-5 h-5 text-white" />
+                    <User className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
                   )}
                 </div>
 
-                {/* Message Bubble */}
+                {/* Message Bubble - responsive width */}
                 <div
                   className={`flex flex-col ${
                     m.role === 'user' ? 'items-end' : 'items-start'
-                  } max-w-[85%] sm:max-w-[70%]`}
+                  } max-w-[85%] sm:max-w-[70%] md:max-w-[60%]`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-2xl shadow-sm ${
+                    className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl shadow-sm text-sm sm:text-base ${
                       m.role === 'user'
                         ? 'bg-indigo-600 text-white rounded-tr-none'
                         : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
                     }`}
                   >
-                    {/* ++++++++++ លុប ReactMarkdown ប្រើ Text ធម្មតា ++++++++++ */}
-                    <p className="text-sm whitespace-pre-wrap wrap-break-word">
+                    <p className="whitespace-pre-wrap wrap-break-word">
                       {m.role === 'ai' ? cleanMarkdown(m.text) : m.text}
                     </p>
 
@@ -97,33 +96,33 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="border-t bg-white/80 backdrop-blur-md p-4 pb-safe mb-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (input.trim() && !loading) handleSend();
-          }}
-          className="max-w-4xl mx-auto flex gap-3"
-        >
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={loading}
-            className="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 disabled:bg-gray-100 transition-all text-sm"
-            placeholder={loading ? 'Thinking...' : 'Ask about your finances...'}
-          />
-          <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="bg-indigo-600 text-white rounded-xl px-5 py-3 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium"
-          >
-            <Send className="w-4 h-4" />
-            <span className="hidden sm:inline">Send</span>
-          </button>
-        </form>
-      </div>
+     {/* Input Area - Responsive */}
+<div className="border-t bg-white/80 backdrop-blur-md p-2 sm:p-3 md:p-4 pb-safe sticky bottom-0">
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+      if (input.trim() && !loading) handleSend();
+    }}
+    className="max-w-4xl mx-auto flex gap-2"
+  >
+    <input
+      type="text"
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      disabled={loading}
+      className="flex-1 border border-gray-300 rounded-full sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 disabled:bg-gray-100 transition-all"
+      placeholder={loading ? 'Thinking...' : 'Ask about your finances...'}
+    />
+    <button
+      type="submit"
+      disabled={loading || !input.trim()}
+      className="bg-indigo-600 text-white rounded-full sm:rounded-xl px-3 sm:px-5 py-2 sm:py-3 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 font-medium text-xs sm:text-sm md:text-base min-w-11 sm:min-w-15"
+    >
+      <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+      <span className="hidden sm:inline">Send</span>
+    </button>
+  </form>
+</div>
 
       <style>{`
         @keyframes fadeIn {
@@ -153,6 +152,12 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
         }
         .pb-safe {
           padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+        /* Extra small devices */
+        @media (max-width: 480px) {
+          .xs\\:inline {
+            display: inline;
+          }
         }
       `}</style>
     </div>

@@ -6,7 +6,7 @@ function DashboardNavigation() {
     const [userImage, setUserImage] = useState(null);
     const [showNotifications, setShowNotifications] = useState(false);
     
-    // ++++++++++ State សម្រាប់ Notification Settings ++++++++++
+    //  State សម្រាប់ Notification Settings 
     const [notifSettings, setNotifSettings] = useState(() => {
         const saved = localStorage.getItem('user_notifications');
         return saved ? JSON.parse(saved) : { email: true, push: true };
@@ -24,7 +24,7 @@ function DashboardNavigation() {
 
         loadUserData();
         
-        // ++++++++++ ស្តាប់ការផ្លាស់ប្តូរ Notifications ++++++++++
+        //  ស្តាប់ការផ្លាស់ប្តូរ Notifications 
         const handleStorageChange = () => {
             const saved = localStorage.getItem('user_notifications');
             if (saved) {
@@ -47,7 +47,7 @@ function DashboardNavigation() {
         };
     }, []);
 
-    // ++++++++++ ពិនិត្យថាតើមាន Toggle ណាមួយបើកដែរឬទេ? ++++++++++
+    //  ពិនិត្យថាតើមាន Toggle ណាមួយបើកដែរឬទេ? 
     const isAnyNotificationOn = () => {
         return notifSettings.email === true || notifSettings.push === true;
     };
@@ -83,13 +83,13 @@ function DashboardNavigation() {
                     </div>
                 </div>
 
-                {/* ++++++++++ Bell Button ++++++++++ */}
+                {/*  Bell Button  */}
                 <div className="relative">
                     <button
                         onClick={() => setShowNotifications(!showNotifications)}
                         className={`p-2 transition-colors relative rounded-xl ${
                             isAnyNotificationOn() 
-                                ? 'text-indigo-600 bg-indigo-50'  // ++++++++++ Active: មាន Toggle បើក ++++++++++
+                                ? 'text-indigo-600 bg-indigo-50'  //  Active: មាន Toggle បើក 
                                 : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-50'
                         }`}
                     >
@@ -108,7 +108,7 @@ function DashboardNavigation() {
                                     <h3 className="font-black text-gray-900">Notification Settings</h3>
                                     <button
                                         onClick={() => setShowNotifications(false)}
-                                        className="p-1 hover:bg-gray-100 rounded-full"
+                                        className="p-1 cursor-pointer hover:bg-gray-100 rounded-full"
                                     >
                                         <span className="text-gray-400">✕</span>
                                     </button>

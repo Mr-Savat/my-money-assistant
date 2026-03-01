@@ -178,13 +178,13 @@ function ProfileSection() {
                     <div className="flex gap-3 p-2">
                         <button
                             onClick={handleSave}
-                            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
+                            className="flex items-center  cursor-pointer gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
                         >
                             <Save size={16} /> Save Changes
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="flex items-center gap-2 bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all active:scale-95"
+                            className="flex items-center cursor-pointer gap-2 bg-gray-100 text-gray-600 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all active:scale-95"
                         >
                             <X size={16} /> Cancel
                         </button>

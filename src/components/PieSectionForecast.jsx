@@ -1,7 +1,7 @@
 import { PieChart as PieIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Sector } from 'recharts';
 
-// ++++++++++ Improved Tooltip UI ++++++++++
+//  Improved Tooltip UI 
 const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
         const { name, value, originalItems, fill } = payload[0].payload;

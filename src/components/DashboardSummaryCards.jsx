@@ -12,7 +12,7 @@ function DashboardSummaryCards() {
         const saved = localStorage.getItem('user_transactions_list');
         const transactions = saved ? JSON.parse(saved) : [];
 
-        // ++++++++++ បន្ថែមតែត្រង់នេះ ++++++++++
+        //  បន្ថែមតែត្រង់នេះ 
         // យកតែខែបច្ចុប្បន្ន
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
@@ -23,7 +23,7 @@ function DashboardSummaryCards() {
             return transDate.getFullYear() === currentYear && 
                    transDate.getMonth() === currentMonth;
         });
-        // ++++++++++ បញ្ចប់ការបន្ថែម ++++++++++
+        //  បញ្ចប់ការបន្ថែម 
 
         const totals = currentMonthTransactions.reduce((acc, curr) => { // កែពី transactions ជា currentMonthTransactions
             const amount = parseFloat(curr.amount);

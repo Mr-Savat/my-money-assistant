@@ -43,7 +43,7 @@ function DashboardTransactions() {
         }
     };
 
-    // ++++++++++ កែប្រែ handleAdd ឲ្យមាន Duplicate Check ++++++++++
+    //  កែប្រែ handleAdd ឲ្យមាន Duplicate Check 
     const handleAdd = (e) => {
         e.preventDefault();
 
@@ -55,7 +55,7 @@ function DashboardTransactions() {
             category: formData.category
         };
 
-        // ++++++++++ ពិនិត្យរក Duplicate ++++++++++
+        //  ពិនិត្យរក Duplicate 
         const isDuplicate = transactions.some(t =>
             t.date === newTransaction.date &&
             t.amount === newTransaction.amount &&
@@ -98,7 +98,7 @@ function DashboardTransactions() {
         }
     };
 
-    // ++++++++++ Function សម្រាប់ Filter យកតែខែមុន និងខែនេះ ++++++++++
+    //  Function សម្រាប់ Filter យកតែខែមុន និងខែនេះ 
     const getRecentMonthsTransactions = () => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
@@ -149,7 +149,7 @@ function DashboardTransactions() {
                     {sortedFiltered.length > 5 && (
                         <button
                             onClick={() => setShowAll(!showAll)}
-                            className="text-indigo-600 text-[10px] font-black hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-all tracking-widest uppercase whitespace-nowrap"
+                            className="text-indigo-600 text-[10px] cursor-pointer font-black hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-all tracking-widest uppercase whitespace-nowrap"
                         >
                             {showAll ? "Show Less" : "View All"}
                         </button>

@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut, LayoutDashboard, MessageSquare, TrendingUp, ShieldCheck, Settings } from 'lucide-react';
+import { X, LogOut, LayoutDashboard, MessageSquare, TrendingUp, ShieldCheck, Settings } from 'lucide-react';
 
+// Sub-component for individual links
 const NavItem = ({ icon, label, to }) => {
   const location = useLocation();
 
+  // Check if current path matches the link "to" prop
   const active =
     to === "/"
       ? location.pathname === "/"
@@ -12,49 +14,77 @@ const NavItem = ({ icon, label, to }) => {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${active
-        ? "bg-indigo-700 text-yellow-400"
-        : "hover:bg-indigo-800 text-indigo-200"
-        }`}
+      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
+        active
+          ? "bg-indigo-700 text-yellow-400 shadow-md"
+          : "hover:bg-indigo-800 text-indigo-200"
+      }`}
     >
-      {icon} <span>{label}</span>
+      {/* Ensure the icon inherits the color by just passing it through */}
+      {icon} 
+      <span className="font-medium">{label}</span>
     </Link>
   );
 };
 
-
-const Sidebar = ({ onLogout }) => {
+const Sidebar = ({ onLogout, isOpen, toggleSidebar }) => {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard />, to: '/' },
-    { id: 'chat', label: 'AI Chat', icon: <MessageSquare />, to: '/chat' },
-    { id: 'forecast', label: 'Forecast', icon: <TrendingUp />, to: '/forecast' },
-    { id: 'blockchain', label: 'Blockchain', icon: <ShieldCheck />, to: '/blockchain' },
-    { id: 'settings', label: 'Settings', icon: <Settings />, to: '/settings' },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} />, to: '/' },
+    { id: 'chat', label: 'AI Chat', icon: <MessageSquare size={20} />, to: '/chat' },
+    { id: 'forecast', label: 'Forecast', icon: <TrendingUp size={20} />, to: '/forecast' },
+    { id: 'blockchain', label: 'Blockchain', icon: <ShieldCheck size={20} />, to: '/blockchain' },
+    { id: 'settings', label: 'Settings', icon: <Settings size={20} />, to: '/settings' },
   ];
 
   return (
-    <nav className="w-54 bg-indigo-900 text-white p-6 hidden md:flex flex-col justify-between">
-      <div>
-        <Link to="/" className="inline-block mb-10 group">
-          <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400 group-hover:text-yellow-300 transition-colors">
-            <ShieldCheck className="group-hover:rotate-12 transition-transform" />
-            MoneyAI
-          </h1>
-        </Link>
-        <div className="space-y-4">
-          {menuItems.map((item) => (
-            <NavItem key={item.id} {...item} />
-          ))}
-        </div>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
+          onClick={toggleSidebar}
+        />
+      )}
 
-      <div
-        onClick={onLogout}
-        className="flex items-center gap-3 p-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-900 transition-all mt-auto"
-      >
-        <LogOut size={20} /> <span>Logout</span>
-      </div>
-    </nav>
+      <nav className={`
+        fixed md:relative z-50 h-screen w-64 bg-indigo-900 text-white p-6 
+        transition-transform duration-300 ease-in-out flex flex-col justify-between
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+        md:translate-x-0
+      `}>
+        <div>
+          <div className="flex items-center justify-between mb-10">
+            <Link to="/" className="group" onClick={() => isOpen && toggleSidebar()}>
+              <h1 className="text-xl font-bold flex items-center gap-2 text-yellow-400">
+                <ShieldCheck className="group-hover:rotate-12 transition-transform" /> 
+                MoneyAI
+              </h1>
+            </Link>
+            
+            {/* Close button for mobile */}
+            <button onClick={toggleSidebar} className="md:hidden text-indigo-200 hover:text-white cursor-pointer">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {menuItems.map((item) => (
+              <div key={item.id} onClick={() => isOpen && toggleSidebar()}>
+                <NavItem {...item} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={onLogout}
+          className="flex items-center gap-3 p-3 rounded-lg cursor-pointer text-red-400 hover:bg-red-900/50 transition-all mt-auto"
+        >
+          <LogOut size={20} /> <span>Logout</span>
+        </button>
+      </nav>
+    </>
   );
 };
 
