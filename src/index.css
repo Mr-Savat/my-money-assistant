@@ -1,9 +1,14 @@
 @import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #111827;
+  --tooltip-bg: white;
+  --tooltip-color: #1E293B;
 }
+
+.dark {
+  --tooltip-bg: #111827;
+  --tooltip-color: #F3F4F6;
+}
+@variant dark (&:where(.dark, .dark *));
 
 
 @keyframes bounce-in {

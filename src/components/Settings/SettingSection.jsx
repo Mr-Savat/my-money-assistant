@@ -10,24 +10,24 @@ const SettingSection = ({ title, description, icon: Icon, children, variant = "d
     };
 
     return (
-        <div className={`group bg-white/90 backdrop-blur-sm border border-gray-200/60 rounded-2xl overflow-hidden transition-all duration-500 shadow-sm ${themes[variant]}`}>
-            <div className="p-6 md:p-8">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-                    <div className="flex items-start gap-5">
-                        <div className={`p-4 rounded-xl bg-linear-to-br transition-transform duration-300 group-hover:scale-110 ${themes[variant].split(' ').slice(2).join(' ')}`}>
-                            <Icon size={28} strokeWidth={1.5} />
-                        </div>
-                        <div>
-                            <h3 className={`text-xl font-bold mb-2 ${variant === 'danger' ? 'text-red-900' : 'text-gray-900'}`}>{title}</h3>
-                            <p className="text-gray-600 leading-relaxed">{description}</p>
-                        </div>
-                    </div>
-                    {/* Optional Action Button slot could go here */}
-                </div>
-                <div className="space-y-2">{children}</div>
-            </div>
+  <div className={`group bg-white/90 dark:bg-gray-800 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 rounded-2xl overflow-hidden transition-all duration-500 shadow-sm ${themes[variant]}`}>
+    <div className="p-6 md:p-8">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+        <div className="flex items-start gap-5">
+          <div className={`p-4 rounded-xl bg-linear-to-br transition-transform duration-300 group-hover:scale-110 ${themes[variant].split(' ').slice(2).join(' ')}`}>
+            <Icon size={28} strokeWidth={1.5} className="text-white dark:text-white" />
+          </div>
+          <div>
+            <h3 className={`text-xl font-bold mb-2 ${variant === 'danger' ? 'text-red-900 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{title}</h3>
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{description}</p>
+          </div>
         </div>
-    );
+        {/* Optional Action Button slot could go here */}
+      </div>
+      <div className="space-y-2">{children}</div>
+    </div>
+  </div>
+);
 };
 
 export default SettingSection

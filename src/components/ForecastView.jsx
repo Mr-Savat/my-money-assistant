@@ -334,152 +334,151 @@ const ForecastView = () => {
     return `$${value.toLocaleString()}`;
   };
 
-  return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-white min-h-screen text-gray-800 font-sans">
-      <div className="max-w-7xl mx-auto">
-        {/* Header - បន្ថែម flex-col លើ mobile, flex-row លើ desktop */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 lg:mb-10">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Financial Forecast</h2>
-            <p className="text-sm sm:text-base text-gray-500 mt-1">Predicting your future spending patterns</p>
-          </div>
-
-          {/* Button Group - បន្ថែម flex-wrap និង gap */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {forecast && (
-              <button
-                onClick={handleReset}
-                className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-red-100 font-bold text-xs sm:text-sm text-red-500 hover:bg-red-50 transition-all"
-              >
-                Clear Data
-              </button>
-            )}
-
-            {/* Template Dropdown - រក្សាដូចដើម តែបន្ថែម responsive padding */}
-            <div className="relative">
-              <button
-                onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-                className="flex items-center gap-1 sm:gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all font-bold text-xs sm:text-sm"
-              >
-                <Download size={16} className="sm:w-5 sm:h-5" />
-                <span>Template</span>
-                <ChevronDown size={14} className={`sm:w-4 sm:h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Dropdown Menu - រក្សាដូចដើម */}
-              {showTemplateDropdown && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowTemplateDropdown(false)}
-                  ></div>
-                  <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-1 sm:p-2">
-                      <button
-                        onClick={handleDownloadTransactionTemplate}
-                        className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 rounded-lg sm:rounded-xl transition-colors"
-                      >
-                        <p className="font-bold text-sm sm:text-base text-gray-700">Transaction Data</p>
-                        <p className="text-[10px] sm:text-xs text-gray-400">date, description, amount, category</p>
-                      </button>
-                      <div className="border-t border-gray-100 my-1"></div>
-                      <button
-                        onClick={handleDownloadMonthlyTemplate}
-                        className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 rounded-lg sm:rounded-xl transition-colors"
-                      >
-                        <p className="font-bold text-sm sm:text-base text-gray-700">Monthly Summary</p>
-                        <p className="text-[10px] sm:text-xs text-gray-400">month, food, transport, shopping, other</p>
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Upload Button - រក្សាដូចដើម តែបន្ថែម responsive padding */}
-            <label className="flex items-center gap-1 sm:gap-2 bg-gray-900 hover:bg-black text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all shadow-md sm:shadow-xl active:scale-95 font-bold text-xs sm:text-sm">
-              <Upload size={16} className="sm:w-5 sm:h-5" />
-              <span>Upload Data</span>
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleFileUpload}
-                accept=".csv, .xlsx, .xls"
-              />
-            </label>
-          </div>
+return (
+  <div className="p-4 sm:p-6 lg:p-8 bg-white dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 lg:mb-10">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Financial Forecast</h2>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Predicting your future spending patterns</p>
         </div>
 
-        {/* Error Message - បន្ថែម responsive padding */}
-        {error && (
-          <div className="mb-4 sm:mb-6 flex items-center justify-between bg-red-50 border border-red-200 text-red-600 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <AlertCircle size={16} className="sm:w-5 sm:h-5" />
-              <span className="font-bold text-xs sm:text-sm">{error}</span>
-            </div>
+        {/* Button Group */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {forecast && (
             <button
-              onClick={handleCloseError}
-              className="p-1 hover:bg-red-100 rounded-full transition-colors"
+              onClick={handleReset}
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-red-100 dark:border-red-900/30 font-bold text-xs sm:text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
             >
-              <X size={14} className="sm:w-4 sm:h-4" />
+              Clear Data
             </button>
-          </div>
-        )}
+          )}
 
-        {/* Main Grid - រក្សាដូចដើម តែបន្ថែម responsive gap */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Left Column - Chart + SummaryCards */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
-            <ChartSection
-              chartData={chartData}
-              forecast={forecast}
-              COLORS={COLORS}
-              formatCurrency={formatCurrency}
-            />
-            <SummaryCards
-              forecast={forecast}
-              formatCurrency={formatCurrency}
-            />
+          {/* Template Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+              className="flex items-center gap-1 sm:gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all font-bold text-xs sm:text-sm"
+            >
+              <Download size={16} className="sm:w-5 sm:h-5" />
+              <span>Template</span>
+              <ChevronDown size={14} className={`sm:w-4 sm:h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showTemplateDropdown && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowTemplateDropdown(false)}
+                />
+                <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-1 sm:p-2">
+                    <button
+                      onClick={handleDownloadTransactionTemplate}
+                      className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg sm:rounded-xl transition-colors"
+                    >
+                      <p className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-300">Transaction Data</p>
+                      <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">date, description, amount, category</p>
+                    </button>
+                    <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                    <button
+                      onClick={handleDownloadMonthlyTemplate}
+                      className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg sm:rounded-xl transition-colors"
+                    >
+                      <p className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-300">Monthly Summary</p>
+                      <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">month, food, transport, shopping, other</p>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Right Column - PieSection with fixed height */}
-          <div className="lg:col-span-1 h-full min-h-75 sm:min-h-87.5 lg:min-h-100">
-            <PieSection
-              transactions={transactions}
-              COLORS={COLORS}
-              formatCurrency={formatCurrency}
+          <label className="flex items-center gap-1 sm:gap-2 bg-gray-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-700 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all shadow-md sm:shadow-xl active:scale-95 font-bold text-xs sm:text-sm cursor-pointer">
+            <Upload size={16} className="sm:w-5 sm:h-5" />
+            <span>Upload Data</span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleFileUpload}
+              accept=".csv, .xlsx, .xls"
             />
-          </div>
+          </label>
         </div>
       </div>
 
-      {/* Modals - នៅដដែល */}
-      {showUploadModal && (
-        <UploadOptionsModal
-          fileName={uploadFileName}
-          transactionCount={uploadFileData?.length || 0}
-          onClose={() => setShowUploadModal(false)}
-          onConfirm={handleUploadConfirm}
-        />
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 sm:mb-6 flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <AlertCircle size={16} className="sm:w-5 sm:h-5" />
+            <span className="font-bold text-xs sm:text-sm">{error}</span>
+          </div>
+          <button
+            onClick={handleCloseError}
+            className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full transition-colors"
+          >
+            <X size={14} className="sm:w-4 sm:h-4" />
+          </button>
+        </div>
       )}
 
-      {showDuplicateModal && (
-        <DuplicateSummaryModal
-          duplicates={duplicateInfo.duplicates}
-          totalCount={duplicateInfo.totalCount}
-          onClose={() => setShowDuplicateModal(false)}
-          onAddAll={() => {
-            uploadData.onAddAll();
-            setShowDuplicateModal(false);
-          }}
-          onSkipDuplicates={() => {
-            uploadData.onSkip();
-            setShowDuplicateModal(false);
-          }}
-        />
-      )}
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Left Column - Chart + SummaryCards */}
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+          <ChartSection
+            chartData={chartData}
+            forecast={forecast}
+            COLORS={COLORS}
+            formatCurrency={formatCurrency}
+          />
+          <SummaryCards
+            forecast={forecast}
+            formatCurrency={formatCurrency}
+          />
+        </div>
+
+        {/* Right Column - PieSection */}
+        <div className="lg:col-span-1 h-full min-h-75 sm:min-h-87.5 lg:min-h-100">
+          <PieSection
+            transactions={transactions}
+            COLORS={COLORS}
+            formatCurrency={formatCurrency}
+          />
+        </div>
+      </div>
     </div>
-  );
+
+    {/* Modals */}
+    {showUploadModal && (
+      <UploadOptionsModal
+        fileName={uploadFileName}
+        transactionCount={uploadFileData?.length || 0}
+        onClose={() => setShowUploadModal(false)}
+        onConfirm={handleUploadConfirm}
+      />
+    )}
+
+    {showDuplicateModal && (
+      <DuplicateSummaryModal
+        duplicates={duplicateInfo.duplicates}
+        totalCount={duplicateInfo.totalCount}
+        onClose={() => setShowDuplicateModal(false)}
+        onAddAll={() => {
+          uploadData.onAddAll();
+          setShowDuplicateModal(false);
+        }}
+        onSkipDuplicates={() => {
+          uploadData.onSkip();
+          setShowDuplicateModal(false);
+        }}
+      />
+    )}
+  </div>
+);
 };
 
 export default ForecastView;

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   X, LogOut, LayoutDashboard, MessageSquare, TrendingUp, 
   ShieldCheck, Settings, ChevronLeft, Moon, Sun 
-} from 'lucide-react'; // ++++++++++ បន្ថែម Moon និង Sun ++++++++++
+} from 'lucide-react'; // បន្ថែម Moon និង Sun
 
 // Sub-component for individual links
 const NavItem = ({ icon, label, to, expanded }) => {
@@ -51,7 +51,7 @@ const NavItem = ({ icon, label, to, expanded }) => {
   );
 };
 
-const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) => { // ++++++++++ បន្ថែម props ++++++++++
+const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) => { // បន្ថែម props
   const [expanded, setExpanded] = useState(true);
 
   const menuItems = [
@@ -62,7 +62,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
     { id: 'settings', label: 'Settings', icon: <Settings size={20} />, to: '/settings' },
   ];
 
-  return (
+return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
@@ -75,11 +75,11 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
       <nav
         style={{ width: expanded ? '256px' : '68px' }}
         className={`
-          fixed md:relative z-50 h-screen bg-indigo-900 text-white
+          fixed md:relative z-50 h-screen bg-indigo-900 dark:bg-indigo-950 text-white
           transition-all duration-300 ease-in-out flex flex-col justify-between
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0 overflow-hidden
-          shadow-2xl
+          shadow-2xl dark:shadow-indigo-950/50
         `}
       >
         {/* Top section */}
@@ -88,15 +88,15 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
           <div className="flex items-center justify-between mb-6">
             <Link
               to="/"
-              className="group flex items-center gap-3 p-3 w-full rounded-lg hover:bg-indigo-800 transition-all duration-200"
+              className="group flex items-center gap-3 p-3 w-full rounded-lg hover:bg-indigo-800 dark:hover:bg-indigo-900 transition-all duration-200"
               onClick={() => isOpen && toggleSidebar()}
             >
               <ShieldCheck
                 size={20}
-                className="text-yellow-400 group-hover:rotate-12 transition-transform shrink-0"
+                className="text-yellow-400 dark:text-yellow-300 group-hover:rotate-12 transition-transform shrink-0"
               />
               <span
-                className={`text-lg font-bold text-yellow-400 whitespace-nowrap transition-all duration-300 overflow-hidden ${
+                className={`text-lg font-bold text-yellow-400 dark:text-yellow-300 whitespace-nowrap transition-all duration-300 overflow-hidden ${
                   expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
                 }`}
               >
@@ -107,7 +107,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
             {/* Mobile close */}
             <button
               onClick={toggleSidebar}
-              className="md:hidden text-indigo-200 hover:text-white cursor-pointer shrink-0 p-3"
+              className="md:hidden text-indigo-200 dark:text-indigo-300 hover:text-white dark:hover:text-white cursor-pointer shrink-0 p-3"
             >
               <X size={20} />
             </button>
@@ -126,15 +126,15 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
         {/* Bottom: Dark Mode + Collapse + Logout */}
         <div className="p-3">
           {/* Divider */}
-          <div className={`border-t border-indigo-800 mb-3 transition-all duration-300 ${expanded ? "mx-0" : "mx-1"}`} />
+          <div className={`border-t border-indigo-800 dark:border-indigo-900 mb-3 transition-all duration-300 ${expanded ? "mx-0" : "mx-1"}`} />
 
-          {/* ++++++++++ Dark Mode Toggle ++++++++++ */}
+          {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-indigo-300 hover:bg-indigo-800 hover:text-white transition-all mb-1"
+            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-indigo-300 dark:text-indigo-400 hover:bg-indigo-800 dark:hover:bg-indigo-900 hover:text-white transition-all mb-1"
           >
             <span className="shrink-0" style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              {darkMode ? <Sun size={20} className="text-indigo-300 dark:text-indigo-400" /> : <Moon size={20} className="text-indigo-300 dark:text-indigo-400" />}
             </span>
             <span
               className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
@@ -148,12 +148,12 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
           {/* Collapse toggle button */}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-indigo-300 hover:bg-indigo-800 hover:text-white transition-all mb-1"
+            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-indigo-300 dark:text-indigo-400 hover:bg-indigo-800 dark:hover:bg-indigo-900 hover:text-white transition-all mb-1"
           >
             <span className="shrink-0" style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ChevronLeft
                 size={20}
-                className={`transition-transform duration-300 ${expanded ? "" : "rotate-180"}`}
+                className={`transition-transform duration-300 ${expanded ? "" : "rotate-180"} text-indigo-300 dark:text-indigo-400`}
               />
             </span>
             <span
@@ -168,7 +168,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
           {/* Logout */}
           <button
             onClick={onLogout}
-            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-red-400 hover:bg-red-900/50 transition-all"
+            className="flex items-center gap-3 p-3 w-full rounded-lg cursor-pointer text-red-400 dark:text-red-400 hover:bg-red-900/50 dark:hover:bg-red-900/70 transition-all"
           >
             <span className="shrink-0"><LogOut size={20} /></span>
             <span

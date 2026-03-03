@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react'; // ++++++++++ បន្ថែម useEffect ++++++++++
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
 
 const DashboardLayout = ({ onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  // ++++++++++ Dark Mode State ++++++++++
+
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
 
-  // ++++++++++ Effect សម្រាប់ Dark Mode ++++++++++
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
     if (darkMode) {
@@ -26,14 +24,14 @@ const DashboardLayout = ({ onLogout }) => {
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
   return (
-    <div className={`flex h-screen bg-gray-100 font-sans overflow-hidden ${darkMode ? 'dark' : ''}`}>
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-950 font-sans overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         onLogout={onLogout}
         isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
-        darkMode={darkMode}           // ++++++++++ បញ្ជូន props ++++++++++
-        toggleDarkMode={toggleDarkMode} // ++++++++++ បញ្ជូន props ++++++++++
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
       />
 
       {/* Main Content Area */}
@@ -48,7 +46,7 @@ const DashboardLayout = ({ onLogout }) => {
         </header>
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
           <Outlet />
         </main>
       </div>
