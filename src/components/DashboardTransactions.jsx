@@ -338,13 +338,13 @@ function TransactionModal({ formData, setFormData, categories, setCategories, on
     const handleDeleteCat = (categoryToDelete) => {
         // 1. Create the new list by filtering out the one you clicked
         const updatedCategories = categories.filter(cat => cat !== categoryToDelete);
-    
+
         // 2. Update the React state so the UI refreshes immediately
         setCategories(updatedCategories);
-    
+
         // 3. Update localStorage so they don't come back on refresh
         localStorage.setItem('user_categories_list', JSON.stringify(updatedCategories));
-    
+
         // ++++++++++ 4. ពិនិត្យមើលថាតើ category ដែលកំពុងជ្រើសរើសត្រូវបានលុបឬអត់? ++++++++++
         if (formData.category === categoryToDelete) {
             // បើមាន category នៅសល់ យកទីមួយ បើអត់ទេ យកទទេ
@@ -375,13 +375,27 @@ function TransactionModal({ formData, setFormData, categories, setCategories, on
                                 type="button"
                                 onClick={() => setFormData({ ...formData, type })}
                                 className={`flex-1 py-2 sm:py-3 cursor-pointer rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${formData.type === type
-                                        ? (type === 'expense' ? 'bg-red-500 text-white shadow-md' : 'bg-emerald-500 text-white shadow-md')
-                                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                    ? (type === 'expense' ? 'bg-red-500 text-white shadow-md' : 'bg-emerald-500 text-white shadow-md')
+                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 {t(`dashboard.${type}`)}
                             </button>
                         ))}
+                    </div>
+
+                    {/* Date Input */}
+                    <div>
+                        <label className="text-[8px] sm:text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 ml-1 block">
+                            {t('transaction.date')}
+                        </label>
+                        <input
+                            type="date"
+                            required
+                            className="w-full p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-xl sm:rounded-2xl border-2 border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-gray-600 outline-none font-medium text-sm sm:text-base text-gray-900 dark:text-white"
+                            value={formData.date}
+                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        />
                     </div>
 
                     {/* Description Input */}
