@@ -9,6 +9,8 @@ import DashboardLayout from './components/DashboardLayout';
 import AuthView from './components/AuthView';
 import SettingsView from './components/Settings/SettingsView';
 
+import { LanguageProvider } from './context/LanguageContext';
+
 import { askMoneyAI } from "./services/aiService";
 import { typeTextEffect } from "./utils/typeEffect";
 
@@ -221,40 +223,42 @@ INSTRUCTIONS:
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<AuthView mode="login" />} />
-        <Route path="/register" element={<AuthView mode="register" />} />
+    <LanguageProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<AuthView mode="login" />} />
+          <Route path="/register" element={<AuthView mode="register" />} />
 
-        {/* Protected Dashboard Routes */}
-        <Route path="/" element={<ProtectedRoute><DashboardLayout onLogout={handleLogout} /></ProtectedRoute>}>
-          {/* URL: / */}
-          <Route index element={<DashboardView />} />
+          {/* Protected Dashboard Routes */}
+          <Route path="/" element={<ProtectedRoute><DashboardLayout onLogout={handleLogout} /></ProtectedRoute>}>
+            {/* URL: / */}
+            <Route index element={<DashboardView />} />
 
-          {/* URL: /chat */}
-          <Route path="chat" element={
-            <ChatView
-              messages={messages}
-              input={input}
-              setInput={setInput}
-              handleSend={handleSend}
-              loading={loading}
-            />
-          } />
+            {/* URL: /chat */}
+            <Route path="chat" element={
+              <ChatView
+                messages={messages}
+                input={input}
+                setInput={setInput}
+                handleSend={handleSend}
+                loading={loading}
+              />
+            } />
 
-          {/* URL: /forecast */}
-          <Route path="forecast" element={<ForecastView />} />
+            {/* URL: /forecast */}
+            <Route path="forecast" element={<ForecastView />} />
 
-          {/* URL: /blockchain */}
-          <Route path="blockchain" element={<BlockchainView />} />
+            {/* URL: /blockchain */}
+            <Route path="blockchain" element={<BlockchainView />} />
 
-          {/* URL: /settings */}
-          <Route path="settings" element={<SettingsView />} />
-        </Route>
+            {/* URL: /settings */}
+            <Route path="settings" element={<SettingsView />} />
+          </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </LanguageProvider>
   );
 };
 

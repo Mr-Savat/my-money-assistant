@@ -3,22 +3,34 @@ import SettingRow from "./SettingRow";
 import SettingSection from "./SettingSection";
 import Toggle from "./Toggle";
 import { Lock, Shield, Eye} from 'lucide-react';
+import { useTranslation } from "../../hooks/useTranslation";
+
 function SecuritySection() {
+    const { t } = useTranslation(); 
     const [twoFactor, setTwoFactor] = useState(false);
+
     return (
         <div>
             <SettingSection
-                title="Security"
-                description="Manage your account access and protection."
+                title={t('settings.security')}
+                description={t('settings.security_desc')}
                 icon={Lock}
                 variant="green"
             >
-                <SettingRow label="Two-Factor Auth" subtext="Add a second step to login" icon={Shield}>
+                <SettingRow 
+                    label={t('security.two_factor')} 
+                    subtext={t('security.two_factor_desc')} 
+                    icon={Shield}
+                >
                     <Toggle enabled={twoFactor} onChange={setTwoFactor} />
                 </SettingRow>
-                <SettingRow label="Password" subtext="Last updated 3 months ago" icon={Eye}>
+                <SettingRow 
+                    label={t('security.password')} 
+                    subtext={t('security.password_desc')} 
+                    icon={Eye}
+                >
                     <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold transition-colors">
-                        Change
+                        {t('security.change')}
                     </button>
                 </SettingRow>
             </SettingSection>
@@ -26,4 +38,4 @@ function SecuritySection() {
     )
 }
 
-export default SecuritySection
+export default SecuritySection;

@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
-import { Upload, Download, AlertCircle, X, ChevronDown } from 'lucide-react'; //  បន្ថែម X icon 
+// import Papa from 'papaparse';
+// import * as XLSX from 'xlsx';
+import { Upload, Download, AlertCircle, X, ChevronDown } from 'lucide-react';
 import PieSection from './PieSectionForecast';
 import SummaryCards from './CardsForecast';
 import ChartSection from './ChartSectionForecast';
-import { saveTransactions, parseUploadedFile, downloadTemplate, downloadMonthlyTemplate } from '../utils/transactionUtils';
+import { saveTransactions, parseUploadedFile, downloadTemplate } from '../utils/transactionUtils';
 import DuplicateSummaryModal from '../components/DuplicateSummaryModal';
 import UploadOptionsModal from '../components/UploadOptionsModal';
+import { useTranslation } from '../hooks/useTranslation';
 
 const ForecastView = () => {
+  const { t } = useTranslation();
   const [chartData, setChartData] = useState([]);
   const [forecast, setForecast] = useState(null);
   const [error, setError] = useState("");
@@ -34,14 +36,8 @@ const ForecastView = () => {
     roseBg: "#fff1f2"
   };
 
-  //  Function សម្រាប់ទាញយក Template ផ្សេងៗ 
-  const handleDownloadTransactionTemplate = () => {
-    downloadTemplate(); // Transaction Data Format
-    setShowTemplateDropdown(false);
-  };
-
-  const handleDownloadMonthlyTemplate = () => {
-    downloadMonthlyTemplate(); // Monthly Summary Format
+  const handleDownloadTemplate = (type, format) => {
+    downloadTemplate(type, format);
     setShowTemplateDropdown(false);
   };
 
@@ -91,9 +87,6 @@ const ForecastView = () => {
     };
   };
 
-  const handleDownloadTemplate = () => {
-    downloadTemplate();
-  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -103,7 +96,7 @@ const ForecastView = () => {
     try {
       const jsonData = await parseUploadedFile(file);
 
-      //  ពិនិត្យមើលឲ្យបានបត់បែនជាងមុន 
+      // ពិនិត្យមើលឲ្យបានបត់បែនជាងមុន 
       if (jsonData && jsonData.length > 0) {
         const firstRow = jsonData[0];
         const columns = Object.keys(firstRow).map(key => key.trim().toLowerCase());
@@ -126,13 +119,13 @@ const ForecastView = () => {
         }
         else {
           console.log("❌ Unknown format. Columns:", columns);
-          setError("Unknown data format. Please use the template.");
+          setError(t('upload.unknown_format'));
         }
       } else {
-        setError("File is empty");
+        setError(t('upload.file_empty'));
       }
     } catch (err) {
-      setError(err.message || "Problem reading data. Check file format.");
+      setError(err.message || t('upload.read_problem'));
     }
 
     e.target.value = '';
@@ -165,19 +158,19 @@ const ForecastView = () => {
                 onAddAll();
                 const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
                 setTransactions(updated);
-                alert(`✅ Added ${data.length} transactions to Dashboard`);
+                alert(t('upload.added_dashboard', { count: data.length }));
               },
               onSkip: () => {
                 onSkip();
                 const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
                 setTransactions(updated);
-                alert(`✅ Added ${unique.length} transactions (skipped ${duplicates.length} duplicates)`);
+                alert(t('upload.added_skipped', { added: unique.length, skipped: duplicates.length }));
               }
             });
             setShowDuplicateModal(true);
           },
           onSuccess: (saved) => {
-            alert(`✅ Added ${saved.length} transactions to Dashboard`);
+            alert(t('upload.added_dashboard', { count: saved.length }));
             const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
             setTransactions(updated);
           }
@@ -261,7 +254,7 @@ const ForecastView = () => {
     if (monthlyData.length >= 2) {
       processForecasting(monthlyData);
     } else {
-      setError("Not enough monthly data to generate forecast. Need at least 2 months of transactions.");
+      setError(t('forecast.not_enough_data'));
     }
   };
 
@@ -327,158 +320,199 @@ const ForecastView = () => {
     }
   };
 
+
   const formatCurrency = (value) => {
     if (value === null || value === undefined || isNaN(value)) {
-      return "Not have data yet";
+      return t('common.noData');
     }
     return `$${value.toLocaleString()}`;
   };
 
-return (
-  <div className="p-4 sm:p-6 lg:p-8 bg-white dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
-    <div className="max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 lg:mb-10">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Financial Forecast</h2>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Predicting your future spending patterns</p>
-        </div>
-
-        {/* Button Group */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {forecast && (
-            <button
-              onClick={handleReset}
-              className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-red-100 dark:border-red-900/30 font-bold text-xs sm:text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
-            >
-              Clear Data
-            </button>
-          )}
-
-          {/* Template Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
-              className="flex items-center gap-1 sm:gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all font-bold text-xs sm:text-sm"
-            >
-              <Download size={16} className="sm:w-5 sm:h-5" />
-              <span>Template</span>
-              <ChevronDown size={14} className={`sm:w-4 sm:h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} />
-            </button>
-
-            {/* Dropdown Menu */}
-            {showTemplateDropdown && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowTemplateDropdown(false)}
-                />
-                <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="p-1 sm:p-2">
-                    <button
-                      onClick={handleDownloadTransactionTemplate}
-                      className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg sm:rounded-xl transition-colors"
-                    >
-                      <p className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-300">Transaction Data</p>
-                      <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">date, description, amount, category</p>
-                    </button>
-                    <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
-                    <button
-                      onClick={handleDownloadMonthlyTemplate}
-                      className="w-full text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg sm:rounded-xl transition-colors"
-                    >
-                      <p className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-300">Monthly Summary</p>
-                      <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">month, food, transport, shopping, other</p>
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 bg-white dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 lg:mb-10">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              {t('forecast.title')}
+            </h2>
+            <p className="text-lg sm:text-base text-gray-500 dark:text-gray-400 mt-1">
+              {t('forecast.subtitle')}
+            </p>
           </div>
 
-          <label className="flex items-center gap-1 sm:gap-2 bg-gray-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-700 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all shadow-md sm:shadow-xl active:scale-95 font-bold text-xs sm:text-sm cursor-pointer">
-            <Upload size={16} className="sm:w-5 sm:h-5" />
-            <span>Upload Data</span>
-            <input
-              type="file"
-              className="hidden"
-              onChange={handleFileUpload}
-              accept=".csv, .xlsx, .xls"
+          {/* Button Group */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {forecast && (
+              <button
+                onClick={handleReset}
+                className="px-4 cursor-pointer sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-red-100 dark:border-red-900/30 font-bold text-xs sm:text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
+              >
+                {t('forecast.clear')}
+              </button>
+            )}
+
+            {/* Template Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+                className="flex items-center cursor-pointer gap-1 sm:gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all font-bold text-xs sm:text-sm"
+              >
+                <Download size={16} className="sm:w-5 sm:h-5" />
+                <span>{t('forecast.template')}</span>
+                <ChevronDown size={14} className={`sm:w-4 sm:h-4 transition-transform ${showTemplateDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {showTemplateDropdown && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowTemplateDropdown(false)}
+                  />
+                  <div className="absolute left-2 -translate-x-1/15 mt-2 w-61 sm:w-72 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2">
+
+                      {/* Transaction Data Section */}
+                      <div className="mb-2">
+                        <p className="px-3 py-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                          {t('forecast.transaction_data')}
+                        </p>
+                        <button
+                          onClick={() => handleDownloadTemplate('transaction', 'csv')}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
+                        >
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">CSV Format</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 group-hover:text-indigo-500">.csv</span>
+                        </button>
+                        <button
+                          onClick={() => handleDownloadTemplate('transaction', 'excel')}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
+                        >
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Excel Format</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 group-hover:text-indigo-500">.xlsx</span>
+                        </button>
+                      </div>
+
+                      <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>
+
+                      {/* Monthly Summary Section */}
+                      <div>
+                        <p className="px-3 py-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                          {t('forecast.monthly_summary')}
+                        </p>
+                        <button
+                          onClick={() => handleDownloadTemplate('monthly', 'csv')}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
+                        >
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">CSV Format</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 group-hover:text-indigo-500">.csv</span>
+                        </button>
+                        <button
+                          onClick={() => handleDownloadTemplate('monthly', 'excel')}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-between group"
+                        >
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Excel Format</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 group-hover:text-indigo-500">.xlsx</span>
+                        </button>
+                      </div>
+
+                      {/* Description at bottom */}
+                      <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <p className="text-[8px] text-gray-400 dark:text-gray-500 text-center">
+                          {t('forecast.choose_format')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <label className="flex items-center gap-1 sm:gap-2 bg-gray-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-700 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all shadow-md sm:shadow-xl active:scale-95 font-bold text-xs sm:text-sm cursor-pointer">
+              <Upload size={16} className="sm:w-5 sm:h-5" />
+              <span>{t('forecast.upload')}</span>
+              <input
+                type="file"
+                className="hidden"
+                onChange={handleFileUpload}
+                accept=".csv, .xlsx, .xls"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 sm:mb-6 flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <AlertCircle size={16} className="sm:w-5 sm:h-5" />
+              <span className="font-bold text-xs sm:text-sm">{error}</span>
+            </div>
+            <button
+              onClick={handleCloseError}
+              className="p-1 hover:bg-red-100 cursor-pointer dark:hover:bg-red-900/30 rounded-full transition-colors"
+            >
+              <X size={14} className="sm:w-4 sm:h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Left Column - Chart + SummaryCards */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+            <ChartSection
+              chartData={chartData}
+              forecast={forecast}
+              COLORS={COLORS}
+              formatCurrency={formatCurrency}
             />
-          </label>
+            <SummaryCards
+              forecast={forecast}
+              formatCurrency={formatCurrency}
+            />
+          </div>
+
+          {/* Right Column - PieSection */}
+          <div className="lg:col-span-1 h-full min-h-75 sm:min-h-87.5 lg:min-h-100">
+            <PieSection
+              transactions={transactions}
+              COLORS={COLORS}
+              formatCurrency={formatCurrency}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="mb-4 sm:mb-6 flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <AlertCircle size={16} className="sm:w-5 sm:h-5" />
-            <span className="font-bold text-xs sm:text-sm">{error}</span>
-          </div>
-          <button
-            onClick={handleCloseError}
-            className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full transition-colors"
-          >
-            <X size={14} className="sm:w-4 sm:h-4" />
-          </button>
-        </div>
+      {/* Modals */}
+      {showUploadModal && (
+        <UploadOptionsModal
+          fileName={uploadFileName}
+          transactionCount={uploadFileData?.length || 0}
+          onClose={() => setShowUploadModal(false)}
+          onConfirm={handleUploadConfirm}
+        />
       )}
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Left Column - Chart + SummaryCards */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
-          <ChartSection
-            chartData={chartData}
-            forecast={forecast}
-            COLORS={COLORS}
-            formatCurrency={formatCurrency}
-          />
-          <SummaryCards
-            forecast={forecast}
-            formatCurrency={formatCurrency}
-          />
-        </div>
-
-        {/* Right Column - PieSection */}
-        <div className="lg:col-span-1 h-full min-h-75 sm:min-h-87.5 lg:min-h-100">
-          <PieSection
-            transactions={transactions}
-            COLORS={COLORS}
-            formatCurrency={formatCurrency}
-          />
-        </div>
-      </div>
+      {showDuplicateModal && (
+        <DuplicateSummaryModal
+          duplicates={duplicateInfo.duplicates}
+          totalCount={duplicateInfo.totalCount}
+          onClose={() => setShowDuplicateModal(false)}
+          onAddAll={() => {
+            uploadData.onAddAll();
+            setShowDuplicateModal(false);
+          }}
+          onSkipDuplicates={() => {
+            uploadData.onSkip();
+            setShowDuplicateModal(false);
+          }}
+        />
+      )}
     </div>
-
-    {/* Modals */}
-    {showUploadModal && (
-      <UploadOptionsModal
-        fileName={uploadFileName}
-        transactionCount={uploadFileData?.length || 0}
-        onClose={() => setShowUploadModal(false)}
-        onConfirm={handleUploadConfirm}
-      />
-    )}
-
-    {showDuplicateModal && (
-      <DuplicateSummaryModal
-        duplicates={duplicateInfo.duplicates}
-        totalCount={duplicateInfo.totalCount}
-        onClose={() => setShowDuplicateModal(false)}
-        onAddAll={() => {
-          uploadData.onAddAll();
-          setShowDuplicateModal(false);
-        }}
-        onSkipDuplicates={() => {
-          uploadData.onSkip();
-          setShowDuplicateModal(false);
-        }}
-      />
-    )}
-  </div>
-);
+  );
 };
 
 export default ForecastView;

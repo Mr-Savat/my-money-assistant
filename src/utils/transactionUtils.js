@@ -1,4 +1,3 @@
-// src/utils/transactionUtils.js
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 
@@ -138,35 +137,17 @@ export const parseUploadedFile = (file) => {
     else reader.readAsBinaryString(file);
   });
 };
+
 /**
- * ទាញយក Template CSV
+ * ទាញយក Template CSV (Monthly Summary)
  */
-export const downloadTemplate = () => {
-  const template = [
-    { date: '2026-02-01', description: 'Coffee', amount: -2, category: 'Food' },
-    { date: '2026-02-01', description: 'Lunch', amount: -8, category: 'Food' },
-    { date: '2026-02-02', description: 'Book', amount: -25, category: 'Education' },
-    { date: '2026-02-03', description: 'Gas', amount: -30, category: 'Transport' },
-    { date: '2026-02-04', description: 'Salary', amount: 1000, category: 'Income' },
-  ];
-
-  const csv = Papa.unparse(template);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'transaction_template.csv';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-};
-
-// បន្ថែម function សម្រាប់ទាញយក Monthly Template
 export const downloadMonthlyTemplate = () => {
+  // ទិន្នន័យសម្រាប់ខែមីនា 2026
   const template = [
     { month: 'Jan', food: 300, transport: 100, shopping: 200, other: 50 },
     { month: 'Feb', food: 350, transport: 120, shopping: 180, other: 70 },
     { month: 'Mar', food: 380, transport: 140, shopping: 210, other: 90 },
+    { month: 'Apr', food: 0, transport: 0, shopping: 0, other: 0 }, // ខែបច្ចុប្បន្ន (មេសា)
   ];
 
   const csv = Papa.unparse(template);
@@ -180,12 +161,17 @@ export const downloadMonthlyTemplate = () => {
   URL.revokeObjectURL(link.href);
 };
 
-// កែឈ្មោះ function ដើមឲ្យច្បាស់
+/**
+ * ទាញយក Template CSV (Transaction Data)
+ */
 export const downloadTransactionTemplate = () => {
+  // ទិន្នន័យសម្រាប់ខែមីនា 2026
   const template = [
-    { date: '2026-02-01', description: 'Coffee', amount: -2, category: 'Food' },
-    { date: '2026-02-01', description: 'Lunch', amount: -8, category: 'Food' },
-    { date: '2026-02-02', description: 'Book', amount: -25, category: 'Education' },
+    { date: '2026-03-01', description: 'Coffee', amount: -2, category: 'Food' },
+    { date: '2026-03-01', description: 'Lunch', amount: -8, category: 'Food' },
+    { date: '2026-03-02', description: 'Book', amount: -25, category: 'Education' },
+    { date: '2026-03-03', description: 'Gas', amount: -30, category: 'Transport' },
+    { date: '2026-03-05', description: 'Salary', amount: 1000, category: 'Income' },
   ];
 
   const csv = Papa.unparse(template);
@@ -197,18 +183,82 @@ export const downloadTransactionTemplate = () => {
 };
 
 /**
- * ទាញយក Template Excel
+ * ទាញយក Template Excel (Transaction Data)
  */
 export const downloadExcelTemplate = () => {
+  // ទិន្នន័យសម្រាប់ខែមីនា 2026
   const template = [
-    { date: '2026-02-01', description: 'Coffee', amount: -2, category: 'Food' },
-    { date: '2026-02-01', description: 'Lunch', amount: -8, category: 'Food' },
-    { date: '2026-02-02', description: 'Book', amount: -25, category: 'Education' },
+    { date: '2026-03-01', description: 'Coffee', amount: -2, category: 'Food' },
+    { date: '2026-03-01', description: 'Lunch', amount: -8, category: 'Food' },
+    { date: '2026-03-02', description: 'Book', amount: -25, category: 'Education' },
+    { date: '2026-03-03', description: 'Gas', amount: -30, category: 'Transport' },
+    { date: '2026-03-05', description: 'Salary', amount: 1000, category: 'Income' },
   ];
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(template);
-  XLSX.utils.book_append_sheet(wb, ws, 'Template');
+  XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+  
+  // បន្ថែមសន្លឹក Instructions
+  const instructions = [
+    { A: 'INSTRUCTIONS:', B: '' },
+    { A: '1. Date format: YYYY-MM-DD', B: '' },
+    { A: '2. Amount: negative for expense, positive for income', B: '' },
+    { A: '3. Category: use any category name', B: '' },
+  ];
+  const wsInstructions = XLSX.utils.json_to_sheet(instructions, { skipHeader: true });
+  XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
 
   XLSX.writeFile(wb, 'transaction_template.xlsx');
+};
+
+/**
+ * ++++++++++ បន្ថែមថ្មី: ទាញយក Template Excel (Monthly Summary) ++++++++++
+ */
+export const downloadExcelMonthlyTemplate = () => {
+  // ទិន្នន័យសម្រាប់ខែមីនា 2026
+  const template = [
+    { month: 'Jan', food: 300, transport: 100, shopping: 200, other: 50 },
+    { month: 'Feb', food: 350, transport: 120, shopping: 180, other: 70 },
+    { month: 'Mar', food: 380, transport: 140, shopping: 210, other: 90 },
+    { month: 'Apr', food: 0, transport: 0, shopping: 0, other: 0 }, // ខែបច្ចុប្បន្ន (មេសា)
+  ];
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(template);
+  XLSX.utils.book_append_sheet(wb, ws, 'Monthly Summary');
+  
+  // បន្ថែមសន្លឹក Instructions
+  const instructions = [
+    { A: 'INSTRUCTIONS:', B: '' },
+    { A: '1. Month: Jan, Feb, Mar, Apr, ...', B: '' },
+    { A: '2. Food: total food expenses for the month', B: '' },
+    { A: '3. Transport: total transport expenses', B: '' },
+    { A: '4. Shopping: total shopping expenses', B: '' },
+    { A: '5. Other: other expenses', B: '' },
+    { A: '6. Fill in your actual numbers', B: '' },
+  ];
+  const wsInstructions = XLSX.utils.json_to_sheet(instructions, { skipHeader: true });
+  XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
+
+  XLSX.writeFile(wb, 'monthly_template.xlsx');
+};
+
+/**
+ * ++++++++++ បន្ថែម: ទាញយក Template ទាំងអស់តាមប្រភេទ ++++++++++
+ */
+export const downloadTemplate = (type, format) => {
+  if (type === 'transaction') {
+    if (format === 'csv') {
+      downloadTransactionTemplate();
+    } else {
+      downloadExcelTemplate();
+    }
+  } else {
+    if (format === 'csv') {
+      downloadMonthlyTemplate();
+    } else {
+      downloadExcelMonthlyTemplate();
+    }
+  }
 };

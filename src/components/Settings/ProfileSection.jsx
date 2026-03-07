@@ -2,15 +2,22 @@ import SettingSection from './SettingSection';
 import { useState, useEffect } from 'react';
 import { User, ChevronRight, Save, X, Camera } from 'lucide-react';
 import { sendNotificationEmail } from '../../services/emailService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 function ProfileSection() {
-    const [profile, setProfile] = useState({ name: '', email: '', profileImage: null });
+    const { t } = useTranslation();
+    const [profile, setProfile] = useState({
+        name: '',
+        email: '',
+        profileImage: null,
+        gender: 'male',    
+        company: '',       
+        jobTitle: '',      
+        monthlySalary: '', 
+        spendingLimit: ''  
+    });
     const [isEditing, setIsEditing] = useState(false);
-    //  លុប imageFile ចេញ 
-    // const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-
-    // 1. Load the REAL data from 'user_data' key
     useEffect(() => {
         const savedUserString = localStorage.getItem('user_data');
         if (savedUserString) {
@@ -19,7 +26,12 @@ function ProfileSection() {
             setProfile({
                 name: savedUser.name || '',
                 email: savedUser.email || '',
-                profileImage: savedUser.profileImage || null
+                profileImage: savedUser.profileImage || null,
+                gender: savedUser.gender || 'male',
+                company: savedUser.company || '',
+                jobTitle: savedUser.jobTitle || '',
+                monthlySalary: savedUser.monthlySalary || '',
+                spendingLimit: savedUser.spendingLimit || ''
             });
             setImagePreview(savedUser.profileImage || null);
         }
@@ -46,9 +58,15 @@ function ProfileSection() {
         // Merge new profile info with old data
         const updatedData = {
             ...currentData,
-            ...profile,
-            profileImage: imagePreview || profile.profileImage // Save image
-        };
+            name: profile.name,
+            email: profile.email,
+            profileImage: imagePreview || profile.profileImage,
+            gender: profile.gender,
+            company: profile.company,
+            jobTitle: profile.jobTitle,
+            monthlySalary: profile.monthlySalary ? Number(profile.monthlySalary) : '',
+            spendingLimit: profile.spendingLimit ? Number(profile.spendingLimit) : ''
+          };
 
         try {
             await sendNotificationEmail(
@@ -67,31 +85,33 @@ function ProfileSection() {
         setIsEditing(false);
         //  លែងត្រូវការ setImageFile(null) 
         // setImageFile(null);
-        alert("Profile updated successfully! A confirmation email has been sent.");
+        alert(t('profile.updated_success'));
     };
 
     const handleCancel = () => {
-        // Reset to original values
         const savedUserString = localStorage.getItem('user_data');
         if (savedUserString) {
-            const savedUser = JSON.parse(savedUserString);
-            setProfile({
-                name: savedUser.name || '',
-                email: savedUser.email || '',
-                profileImage: savedUser.profileImage || null
-            });
-            setImagePreview(savedUser.profileImage || null);
+          const savedUser = JSON.parse(savedUserString);
+          setProfile({
+            name: savedUser.name || '',
+            email: savedUser.email || '',
+            profileImage: savedUser.profileImage || null,
+            gender: savedUser.gender || 'male',
+            company: savedUser.company || '',
+            jobTitle: savedUser.jobTitle || '',
+            monthlySalary: savedUser.monthlySalary || '',
+            spendingLimit: savedUser.spendingLimit || ''
+          });
+          setImagePreview(savedUser.profileImage || null);
         }
         setIsEditing(false);
-        //  លែងត្រូវការ setImageFile(null) 
-        // setImageFile(null);
-    };
+      };
 
     return (
         <div>
             <SettingSection
-                title="Profile Information"
-                description="Update your personal details and how others see you."
+                title={t('settings.profile')}
+                description={t('settings.profile_desc')}
                 icon={User}
                 variant="default"
             >
@@ -127,17 +147,17 @@ function ProfileSection() {
 
                     {isEditing && (
                         <div className="text-center sm:text-left text-xs text-gray-400 dark:text-gray-500">
-                            <p>Click the camera icon to change your profile picture</p>
-                            <p className="mt-1">Supported: JPG, PNG, GIF (max 5MB)</p>
+                            <p>{t('profile.camera_hint')}</p>
+                            <p className="mt-1">{t('profile.camera_support')}</p>
                         </div>
                     )}
                 </div>
 
                 {/* Form Fields - Responsive grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
                     {/* Full Name Field */}
                     <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Full Name</span>
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  "> {t('profile.fullname')}</span>
                         {isEditing ? (
                             <input
                                 type="text"
@@ -146,13 +166,13 @@ function ProfileSection() {
                                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                             />
                         ) : (
-                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">{profile.name || "N/A"}</p>
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1"> {profile.name || t('profile.na')}</p>
                         )}
                     </div>
 
                     {/* Email Field */}
                     <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all focus-within:border-blue-300 dark:focus-within:border-blue-600">
-                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Email Address</span>
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  ">  {t('profile.email')}</span>
                         {isEditing ? (
                             <input
                                 type="email"
@@ -161,7 +181,117 @@ function ProfileSection() {
                                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                             />
                         ) : (
-                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">{profile.email || "N/A"}</p>
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">  {profile.email || t('profile.na')}</p>
+                        )}
+                    </div>
+                    {/* Gender Field */}
+                    <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  ">
+                            {t('profile.gender')}
+                        </span>
+                        {isEditing ? (
+                            <select
+                                className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                value={profile.gender}
+                                onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                            >
+                                <option value="male">{t('profile.male')}</option>
+                                <option value="female">{t('profile.female')}</option>
+                                <option value="other">{t('profile.other')}</option>
+                            </select>
+                        ) : (
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">
+                                {profile.gender === 'male' ? t('profile.male') :
+                                    profile.gender === 'female' ? t('profile.female') : t('profile.other')}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Company Field */}
+                    <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  ">
+                            {t('profile.company')}
+                        </span>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                value={profile.company}
+                                onChange={(e) => setProfile({ ...profile, company: e.target.value })}
+                                placeholder={t('profile.company_placeholder')}
+                            />
+                        ) : (
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">
+                                {profile.company || t('profile.na')}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Job Title Field */}
+                    <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  ">
+                            {t('profile.job_title')}
+                        </span>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                value={profile.jobTitle}
+                                onChange={(e) => setProfile({ ...profile, jobTitle: e.target.value })}
+                                placeholder={t('profile.job_title_placeholder')}
+                            />
+                        ) : (
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">
+                                {profile.jobTitle || t('profile.na')}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Monthly Salary Field */}
+                    <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  ">
+                            {t('profile.monthly_salary')}
+                        </span>
+                        {isEditing ? (
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-6 pr-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={profile.monthlySalary}
+                                    onChange={(e) => setProfile({ ...profile, monthlySalary: e.target.value })}
+                                    placeholder="$0.00"
+                                    step="0.01"
+                                    min="0"
+                                />
+                            </div>
+                        ) : (
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">
+                                {profile.monthlySalary ? `$${Number(profile.monthlySalary).toLocaleString()}` : t('profile.na')}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Spending Limit Field */}
+                    <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500  ">
+                            {t('profile.spending_limit')}
+                        </span>
+                        {isEditing ? (
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    className="w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-6 pr-2 py-1 mt-1 font-bold text-sm sm:text-base text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={profile.spendingLimit}
+                                    onChange={(e) => setProfile({ ...profile, spendingLimit: e.target.value })}
+                                    placeholder="$0.00"
+                                    step="0.01"
+                                    min="0"
+                                />
+                            </div>
+                        ) : (
+                            <p className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mt-1">
+                                {profile.spendingLimit ? `$${Number(profile.spendingLimit).toLocaleString()}` : t('profile.na')}
+                            </p>
                         )}
                     </div>
                 </div>
@@ -172,7 +302,7 @@ function ProfileSection() {
                         onClick={() => setIsEditing(true)}
                         className="flex items-center cursor-pointer gap-1 sm:gap-2 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm hover:underline p-2 group w-full sm:w-auto justify-center sm:justify-start"
                     >
-                        Edit Public Profile
+                        {t('profile.edit')}
                         <ChevronRight size={14} className="sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 ) : (
@@ -181,13 +311,13 @@ function ProfileSection() {
                             onClick={handleSave}
                             className="flex items-center justify-center cursor-pointer gap-1 sm:gap-2 bg-blue-600 dark:bg-blue-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg shadow-blue-200 dark:shadow-blue-900/30 active:scale-95 w-full sm:w-auto"
                         >
-                            <Save size={14} className="sm:w-4 sm:h-4" /> Save Changes
+                            <Save size={14} className="sm:w-4 sm:h-4" /> {t('profile.save')}
                         </button>
                         <button
                             onClick={handleCancel}
                             className="flex items-center justify-center cursor-pointer gap-1 sm:gap-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-all active:scale-95 w-full sm:w-auto"
                         >
-                            <X size={14} className="sm:w-4 sm:h-4" /> Cancel
+                            <X size={14} className="sm:w-4 sm:h-4" /> {t('profile.cancel')}
                         </button>
                     </div>
                 )}

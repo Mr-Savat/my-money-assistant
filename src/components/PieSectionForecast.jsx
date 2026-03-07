@@ -1,8 +1,10 @@
 import { PieChart as PieIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Sector } from 'recharts';
+import { useTranslation } from '../hooks/useTranslation';
 
 //  Improved Tooltip UI 
 const CustomTooltip = ({ active, payload }) => {
+    
     if (active && payload && payload.length) {
         const { name, value, originalItems, fill } = payload[0].payload;
         const isOther = name.includes("Other");
@@ -54,6 +56,7 @@ const renderActiveShape = (props) => {
 };
 
 const PieSection = ({ transactions, COLORS, formatCurrency }) => {
+    const { t } = useTranslation();
     // Logic remains exactly as you wrote it
     const calculateCategoryTotals = () => {
         if (!transactions || transactions.length === 0) return [];
@@ -104,14 +107,14 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 dark:border-gray-700 flex flex-col relative transition-all duration-300 hover:shadow-sm h-full">
             <h3 className="font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 lg:mb-8 flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <PieIcon size={14} className="sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5 text-indigo-500 dark:text-indigo-400" />
-                <span>Category Breakdown Expense</span>
-                {hasData && <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-500 font-normal ml-1 tracking-tight">(This Month)</span>}
+                <span>{t('pie.category_breakdown')}</span>
+                {hasData && <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-500 font-normal ml-1 tracking-tight">({t('pie.this_month')})</span>}
             </h3>
 
             <div className="h-48 sm:h-56 lg:h-64 flex-1 relative">
                 {!hasData && (
                     <div className="absolute inset-0 flex items-center justify-center z-10 text-gray-400 dark:text-gray-500 font-medium text-xs sm:text-sm italic px-4 text-center">
-                        No expense data this month
+                        {t('pie.no_data')}
                     </div>
                 )}
 
@@ -159,7 +162,7 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
                                     const item = data.find(d => d.name === value);
                                     return (
                                         <span className="text-[9px] sm:text-[10px] lg:text-[11px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
-                                            {value} <span className="text-gray-400 dark:text-gray-500 font-normal ml-1">(${item?.value.toLocaleString()})</span>
+                                            {value} <span className="text-gray-400 dark:text-gray-500 font-normal ml-1">({formatCurrency(item?.value)})</span>
                                         </span>
                                     );
                                 }}
@@ -172,9 +175,11 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
             {hasData && (
                 <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center">
-                        <span className="text-[8px] sm:text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">Monthly Spend</span>
+                        <span className="text-[8px] sm:text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">
+                            {t('pie.monthly_spend')}
+                        </span>
                         <span className="text-xs sm:text-sm font-black text-gray-800 dark:text-white">
-                            ${data.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                            {formatCurrency(data.reduce((sum, item) => sum + item.value, 0))}
                         </span>
                     </div>
                 </div>

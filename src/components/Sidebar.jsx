@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  X, LogOut, LayoutDashboard, MessageSquare, TrendingUp, 
-  ShieldCheck, Settings, ChevronLeft, Moon, Sun 
-} from 'lucide-react'; // បន្ថែម Moon និង Sun
+import {
+  X, LogOut, LayoutDashboard, MessageSquare, TrendingUp,
+  ShieldCheck, Settings, ChevronLeft, Moon, Sun
+} from 'lucide-react';
+import LanguageSwitch from '../components/LanguageSwitch';
 
 // Sub-component for individual links
 const NavItem = ({ icon, label, to, expanded }) => {
@@ -17,19 +18,17 @@ const NavItem = ({ icon, label, to, expanded }) => {
   return (
     <Link
       to={to}
-      className={`relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-        active
-          ? "bg-indigo-700 text-yellow-400 shadow-md"
-          : "hover:bg-indigo-800 text-indigo-200"
-      }`}
+      className={`relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${active
+        ? "bg-indigo-700 text-yellow-400 shadow-md"
+        : "hover:bg-indigo-800 text-indigo-200"
+        }`}
     >
       <span className="shrink-0">{icon}</span>
 
       {/* Label slides in */}
       <span
-        className={`font-medium whitespace-nowrap transition-all duration-300 overflow-hidden ${
-          expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-        }`}
+        className={`font-medium whitespace-nowrap transition-all duration-300 overflow-hidden ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+          }`}
       >
         {label}
       </span>
@@ -62,7 +61,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, darkMode, toggleDarkMode }) 
     { id: 'settings', label: 'Settings', icon: <Settings size={20} />, to: '/settings' },
   ];
 
-return (
+  return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
@@ -88,7 +87,7 @@ return (
           <div className="flex items-center justify-between mb-6">
             <Link
               to="/"
-              className="group flex items-center gap-3 p-3 w-full rounded-lg hover:bg-indigo-800 dark:hover:bg-indigo-900 transition-all duration-200"
+              className="group flex items-center gap-3 p-3 "
               onClick={() => isOpen && toggleSidebar()}
             >
               <ShieldCheck
@@ -96,9 +95,8 @@ return (
                 className="text-yellow-400 dark:text-yellow-300 group-hover:rotate-12 transition-transform shrink-0"
               />
               <span
-                className={`text-lg font-bold text-yellow-400 dark:text-yellow-300 whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                  expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-                }`}
+                className={`text-lg font-bold text-yellow-400 dark:text-yellow-300 whitespace-nowrap transition-all duration-300 overflow-hidden ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                  }`}
               >
                 MoneyAI
               </span>
@@ -137,13 +135,14 @@ return (
               {darkMode ? <Sun size={20} className="text-indigo-300 dark:text-indigo-400" /> : <Moon size={20} className="text-indigo-300 dark:text-indigo-400" />}
             </span>
             <span
-              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-              }`}
+              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                }`}
             >
               {darkMode ? "Light Mode" : "Dark Mode"}
             </span>
           </button>
+
+          <LanguageSwitch expanded={expanded} />
 
           {/* Collapse toggle button */}
           <button
@@ -157,9 +156,8 @@ return (
               />
             </span>
             <span
-              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-              }`}
+              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                }`}
             >
               Collapse
             </span>
@@ -172,9 +170,8 @@ return (
           >
             <span className="shrink-0"><LogOut size={20} /></span>
             <span
-              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${
-                expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-              }`}
+              className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${expanded ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                }`}
             >
               Logout
             </span>

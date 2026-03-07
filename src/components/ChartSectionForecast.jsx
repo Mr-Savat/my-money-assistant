@@ -1,18 +1,22 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 const CustomTooltip = ({ active, payload, label, formatCurrency }) => {
+  const { t } = useTranslation();
+  
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const isForecast = data.isForecast;
     const value = isForecast ? data.predictedDisplay : data.actualDisplay;
+    
     return (
       <div className="bg-white dark:bg-gray-800 px-4 py-3 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isForecast ? 'bg-amber-500' : 'bg-indigo-500'}`}></div>
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {isForecast ? 'Forecast Expense: ' : 'Expense: '}
+            {isForecast ? t('forecast_chart.forecast_expense') : t('forecast_chart.expense')}
           </span>
           <span className={`text-sm font-black ${isForecast ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
             {formatCurrency(value)}
@@ -25,6 +29,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }) => {
 };
 // forecast, COLORS,
 const ChartSection = ({ chartData, formatCurrency }) => {
+  const { t } = useTranslation();
 
   //  ពិនិត្យមើលថាមានទិន្នន័យទេ? 
   const hasData = chartData && chartData.length > 0;
@@ -33,7 +38,7 @@ const ChartSection = ({ chartData, formatCurrency }) => {
     <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
       <h3 className="text-base sm:text-lg font-bold text-gray-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2">
         <span className="w-1 h-4 sm:h-5 bg-indigo-500 rounded-full"></span>
-        Spending Trend (Expense)
+        {t('forecast_chart.title')}
       </h3>
 
       <div className="h-60 sm:h-72 lg:h-80 relative">
@@ -44,16 +49,18 @@ const ChartSection = ({ chartData, formatCurrency }) => {
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-gray-700 rounded-xl sm:rounded-2xl flex items-center justify-center mb-2 sm:mb-3">
               <TrendingUp size={24} className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-gray-400 dark:text-gray-500" />
             </div>
-            <p className="text-gray-400 dark:text-gray-500 font-bold text-xs sm:text-sm mb-1">No Data Available</p>
+            <p className="text-gray-400 dark:text-gray-500 font-bold text-xs sm:text-sm mb-1">
+              {t('forecast_chart.no_data')}
+            </p>
             <p className="text-gray-300 dark:text-gray-600 text-[10px] sm:text-xs text-center max-w-36 sm:max-w-50 px-2">
-              Upload a file or add transactions to see your spending trend
+              {t('forecast_chart.no_data_desc')}
             </p>
           </div>
         )}
 
         {hasData ? (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{
+            <AreaChart data={chartData} accessibilityLayer={false} margin={{
               top: 20,
               right: 10,
               left: 0,
