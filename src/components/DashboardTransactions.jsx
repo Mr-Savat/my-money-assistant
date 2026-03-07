@@ -484,7 +484,7 @@ function TransactionModal({ formData, setFormData, categories, setCategories, on
 
                                         {/* Filter categories based on search term */}
                                         {categories.filter(cat => cat.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 ? (
-                                            <ul className="absolute z-30 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto overflow-x-hidden">
+                                            <ul className="absolute z-30 w-full bottom-full mb-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
                                                 {categories
                                                     .filter(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
                                                     .map((cat) => (
