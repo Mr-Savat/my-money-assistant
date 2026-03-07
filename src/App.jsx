@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'; // ++++++++++ បន្ថែម useEffect ++++++++++
+import { useState, useEffect } from 'react'; //  បន្ថែម useEffect 
 import DashboardView from './components/DashboardView';
 import ChatView from './components/ChatView';
 import ForecastView from './components/ForecastView';
@@ -21,11 +21,11 @@ const App = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ++++++++++ State សម្រាប់ Transaction Data ++++++++++
+  //  State សម្រាប់ Transaction Data 
   const [transactions, setTransactions] = useState([]);
   const [userData, setUserData] = useState(null);
 
-  // ++++++++++ យក Transaction Data ពី localStorage ++++++++++
+  //  យក Transaction Data ពី localStorage 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/immutability
     loadTransactionData();
@@ -56,7 +56,7 @@ const App = () => {
     }
   };
 
-  // ++++++++++ Function សម្រាប់រៀបចំ Transaction Summary ++++++++++
+  //  Function សម្រាប់រៀបចំ Transaction Summary 
   const getTransactionSummary = () => {
     if (!transactions || transactions.length === 0) {
       return {
@@ -153,7 +153,7 @@ const App = () => {
     const userName = userData?.name || 'User';
     const hasTransactions = transactions.length > 0;
 
-    // ++++++++++ កែ Prompt ថ្មី ++++++++++
+    //  កែ Prompt ថ្មី 
     const prompt = hasTransactions ? `
   You are Money Assist AI, a financial assistant. You have access to the user's transaction data.
   
@@ -193,7 +193,7 @@ const App = () => {
   
   USER QUESTION: ${userText}
   
- // ក្នុង INSTRUCTIONS បន្ថែម៖
+// ក្នុង INSTRUCTIONS បន្ថែម៖
 INSTRUCTIONS:
 1. Answer ONLY the specific question the user asked
 2. Be concise - don't add extra information unless asked

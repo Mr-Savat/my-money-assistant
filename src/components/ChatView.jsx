@@ -16,16 +16,16 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
   const cleanMarkdown = (text) => {
     if (!text) return text;
 
-    // លុប Markdown symbols
+    //Markdown symbols
     return text
-      .replace(/\*\*/g, '') // លុប **
-      .replace(/\*/g, '')    // លុប *
-      .replace(/#/g, '')     // លុប #
-      .replace(/`/g, '')     // លុប `
-      .replace(/\[/g, '')    // លុប [
-      .replace(/\]/g, '')    // លុប ]
-      .replace(/\(/g, '')    // លុប (
-      .replace(/\)/g, '')    // លុប )
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/#/g, '')
+      .replace(/`/g, '')
+      .replace(/\[/g, '')
+      .replace(/\]/g, '')
+      .replace(/\(/g, '')
+      .replace(/\)/g, '')
       .trim();
   };
 
@@ -54,8 +54,8 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
                 {/* Avatar - responsive size */}
                 <div
                   className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${m.role === 'ai'
-                      ? 'bg-linear-to-br from-indigo-500 to-purple-600'
-                      : 'bg-gray-700 dark:bg-gray-600'
+                    ? 'bg-linear-to-br from-indigo-500 to-purple-600'
+                    : 'bg-gray-700 dark:bg-gray-600'
                     }`}
                 >
                   {m.role === 'ai' ? (
@@ -72,8 +72,8 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
                 >
                   <div
                     className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl shadow-sm text-sm sm:text-base ${m.role === 'user'
-                        ? 'bg-indigo-600 text-white rounded-tr-none'
-                        : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
+                      ? 'bg-indigo-600 text-white rounded-tr-none'
+                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
                       }`}
                   >
                     <p className="whitespace-pre-wrap wrap-break-word">
@@ -112,7 +112,7 @@ const ChatView = ({ messages, input, setInput, handleSend, loading }) => {
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-indigo-600 text-white rounded-full sm:rounded-xl px-3 sm:px-5 py-2 sm:py-3 hover:bg-indigo-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 font-medium text-xs sm:text-sm md:text-base min-w-11 sm:min-w-15"
+            className="bg-indigo-600 text-white rounded-full cursor-pointer sm:rounded-xl px-3 sm:px-5 py-2 sm:py-3 hover:bg-indigo-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 font-medium text-xs sm:text-sm md:text-base min-w-11 sm:min-w-15"
           >
             <Send className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline">Send</span>
