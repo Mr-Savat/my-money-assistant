@@ -1,8 +1,5 @@
-import ProfileSection from './ProfileSection';
-import NotificationsSection from './NotificationsSection';
-import SecuritySection from './SecuritySection';
-import DangerZone from './DangerZone';
 import {useTranslation} from '../../hooks/useTranslation'
+import {NotificationsSection, ProfileSection, SecuritySection, DangerZone} from "./components/index"
 
 const SettingsView = () => {
   const { t } = useTranslation();
@@ -26,10 +23,10 @@ const SettingsView = () => {
 
     <main className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
       <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8 pb-20">
-        <ProfileSection />
-        <NotificationsSection />
-        <SecuritySection />
-        <DangerZone />
+        <ProfileSection/>
+        <NotificationsSection/>
+        <SecuritySection/>
+        <DangerZone/>
       </div>
     </main>
   </div>

@@ -1,58 +1,10 @@
-import { useTranslation } from '../hooks/useTranslation'; // ++++++++++ បន្ថែម Import ++++++++++
-import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { NotificationsSection } from '../pages/Settings/components/index'
+import { NotificationsSection } from '../../Settings/components';
+import { useDashboardNavigation } from '../hooks/useDashboardNavigation';
+
 function DashboardNavigation() {
-  const { t } = useTranslation();
-  const [userName, setUserName] = useState('Guest');
-  const [userImage, setUserImage] = useState(null);
-  const [showNotifications, setShowNotifications] = useState(false);
-
-  //  State សម្រាប់ Notification Settings 
-  const [notifSettings, setNotifSettings] = useState(() => {
-    const saved = localStorage.getItem('user_notifications');
-    return saved ? JSON.parse(saved) : { email: true, push: true };
-  });
-
-  useEffect(() => {
-    const loadUserData = () => {
-      const savedData = localStorage.getItem('user_data');
-      if (savedData) {
-        const user = JSON.parse(savedData);
-        setUserName(user?.name || 'Guest');
-        setUserImage(user?.profileImage || null);
-      }
-    };
-
-    loadUserData();
-
-    //  ស្តាប់ការផ្លាស់ប្តូរ Notifications 
-    const handleStorageChange = () => {
-      const saved = localStorage.getItem('user_notifications');
-      if (saved) {
-        setNotifSettings(JSON.parse(saved));
-      }
-    };
-
-    window.addEventListener('storage', loadUserData);
-    window.addEventListener('storage', handleStorageChange);
-
-    const interval = setInterval(() => {
-      loadUserData();
-      handleStorageChange();
-    }, 1000);
-
-    return () => {
-      window.removeEventListener('storage', loadUserData);
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
-
-  //  ពិនិត្យថាតើមាន Toggle ណាមួយបើកដែរឬទេ? 
-  const isAnyNotificationOn = () => {
-    return notifSettings.email === true || notifSettings.push === true;
-  };
+    const { userName, userImage, showNotifications, setShowNotifications, t, isAnyNotificationOn } = useDashboardNavigation();
+ 
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 lg:mb-10 gap-3 sm:gap-4">
       <div>
