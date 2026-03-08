@@ -1,8 +1,7 @@
 import React from 'react';
 import ChatMessages from './components/ChatMessages';
 import ChatInput from './components/ChatInput';
-import { useAIChat } from './hooks/useAIChat';
-
+import { useAIChat } from './components/hooks/useAIChat';
 const AIChat = () => {
   const { messages, input, setInput, loading, handleSend } = useAIChat();
 

@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Send } from 'lucide-react';
 
 const ChatInput = ({ input, setInput, handleSend, loading }) => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      inputRef.current?.focus();
+    }
+  }, [loading]);
+
   return (
     <div className="border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-2 sm:p-3 md:p-4 pb-safe sticky bottom-0 transition-colors duration-300">
       <form
@@ -14,6 +26,7 @@ const ChatInput = ({ input, setInput, handleSend, loading }) => {
         <input
           type="text"
           value={input}
+          ref={inputRef} 
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
           className="flex-1 border border-gray-300 dark:border-gray-600 rounded-full sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"

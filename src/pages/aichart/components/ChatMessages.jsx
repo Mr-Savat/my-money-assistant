@@ -31,7 +31,7 @@ const ChatMessages = ({ messages, loading }) => {
       <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-xl animate-bounce-slow">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-xl animate-bounce-slow">
               <Bot className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-2">
@@ -50,7 +50,7 @@ const ChatMessages = ({ messages, loading }) => {
               <div
                 className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
                   m.role === 'ai'
-                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                    ? 'bg-linear-to-br from-indigo-500 to-purple-600'
                     : 'bg-gray-700 dark:bg-gray-600'
                 }`}
               >
@@ -73,7 +73,7 @@ const ChatMessages = ({ messages, loading }) => {
                       : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap break-words">
+                  <p className="whitespace-pre-wrap wrap-break-word">
                     {m.role === 'ai' ? cleanMarkdown(m.text) : m.text}
                   </p>
 
