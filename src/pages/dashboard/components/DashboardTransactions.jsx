@@ -1,7 +1,7 @@
-import {Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useDashboardTransaction } from "../hooks/useDashboardTransactions";
 import TransactionRow from "./TransactionRow";
-import TransactionModal from "./TransactionModal";
+import TransactionModal from "./transaction-modal/TransactionModal";
 
 function DashboardTransactions() {
     const {
