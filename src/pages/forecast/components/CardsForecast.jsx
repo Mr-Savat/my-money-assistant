@@ -1,7 +1,7 @@
 import { TrendingDown, Calendar, PieChart } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
-const SummaryCards = ({ forecast, formatCurrency }) => {
-  const { t } = useTranslation() 
+import { useTranslation } from '../../../hooks/useTranslation';
+const CardsForecast = ({ forecast, formatCurrency }) => {
+  const { t } = useTranslation()
   if (!forecast) {
     return (
       <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm text-center transition-colors duration-300">
@@ -136,4 +136,4 @@ const SummaryCards = ({ forecast, formatCurrency }) => {
   );
 };
 
-export default SummaryCards;
+export default CardsForecast;

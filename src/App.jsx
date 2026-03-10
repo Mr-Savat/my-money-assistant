@@ -1,5 +1,4 @@
 import Dashboard from './pages/dashboard/Dashboard';
-import ForecastView from './components/ForecastView';
 import BlockchainView from './components/BlockchainView';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -9,6 +8,7 @@ import SettingsView from './pages/Settings/SettingsView';
 
 import { LanguageProvider } from './context/LanguageContext';
 import AIChat from './pages/aichart/AIChat';
+import Forecast from './pages/forecast/Forecast';
 
 const App = () => {
   const handleLogout = () => {
@@ -32,7 +32,7 @@ const App = () => {
             <Route path="chat" element={<AIChat />} />
 
             {/* URL: /forecast */}
-            <Route path="forecast" element={<ForecastView />} />
+            <Route path="forecast" element={<Forecast />} />
 
             {/* URL: /blockchain */}
             <Route path="blockchain" element={<BlockchainView />} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, TrendingUp, List, Layers } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 const UploadOptionsModal = ({ 
   fileName, 
