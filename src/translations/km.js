@@ -3,6 +3,8 @@ const km = {
   "app.name": "MoneyAI",
   "welcome": "សូមស្វាគមន៍, {name}!",
   "welcome.subtitle": "នេះជាអ្វីដែលកំពុងកើតឡើងជាមួយលុយរបស់អ្នកថ្ងៃនេះ។",
+  "common.sending": "កំពុងផ្ញើ...",
+  "common.saving": "កំពុងរក្សាទុក...",
 
   // Navigation
   "nav.dashboard": "ផ្ទាំងគ្រប់គ្រង",
@@ -265,6 +267,11 @@ const km = {
   "auth.have_account": "មានគណនីរួចហើយ?",
   "auth.signup": "ចុះឈ្មោះ",
 
+  "auth.logging_in": "កំពុងចូល...",
+  "auth.creating_account": "កំពុងបង្កើតគណនី...",
+  "auth.invalid_credentials": "អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ!",
+
+
   // Forgot Password
   "forgot.title": "ភ្លេចពាក្យសម្ងាត់",
   "forgot.reset_title": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
@@ -288,6 +295,9 @@ const km = {
   "forgot.password_short": "ពាក្យសម្ងាត់ត្រូវមានយ៉ាងហោចណាស់ ៦ តួអក្សរ",
   "forgot.send_failed": "ការផ្ញើលេខកូដបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
   "forgot.reset_failed": "ការកំណត់ពាក្យសម្ងាត់ឡើងវិញបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "forgot.no_request": "រកមិនឃើញសំណើកំណត់ឡើងវិញទេ។ សូមចាប់ផ្តើមម្តងទៀត។",
+  "common.back": "ត្រឡប់ក្រោយ",
+  "common.resetting": "កំពុងកំណត់ឡើងវិញ...",
 
   // Delete Account
   "delete.title": "លុបគណនី (តម្រូវឱ្យមានការផ្ទៀងផ្ទាត់អ៊ីមែល)",

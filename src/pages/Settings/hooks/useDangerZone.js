@@ -9,6 +9,7 @@ export const useDangerZone = () => {
   const [step, setStep] = useState('initial');
   const [generatedCode, setGeneratedCode] = useState('');
   const [userInputCode, setUserInputCode] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Generate random 6-digit code
   const generateCode = () => {
@@ -19,6 +20,8 @@ export const useDangerZone = () => {
   const startDeletionProcess = async () => {
     const confirmFirst = window.confirm(t('danger.confirm_request'));
     if (!confirmFirst) return;
+
+    setLoading(true);
 
     const code = generateCode();
     setGeneratedCode(code);
@@ -33,17 +36,25 @@ export const useDangerZone = () => {
     } catch (error) {
       console.log(error);
       alert(t('danger.code_failed'));
+    } finally {
+      setLoading(false);
     }
+
   };
 
   // Verify code and delete account
   const handleFinalDelete = () => {
     if (userInputCode === generatedCode) {
-      // Clear all user data
       localStorage.removeItem('user_data');
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('user_notifications');
-      
+      localStorage.removeItem('user_transactions_list');
+      localStorage.removeItem('user_categories_list');
+      localStorage.removeItem('forecastStorage');
+      localStorage.removeItem('ai_chat_messages');
+      localStorage.removeItem('language');
+      localStorage.removeItem('darkMode');
+
       alert(t('danger.account_deleted'));
       navigate('/register');
       window.location.reload();
@@ -65,6 +76,7 @@ export const useDangerZone = () => {
     startDeletionProcess,
     handleFinalDelete,
     resetStep,
-    t
+    t,
+    loading
   };
 };

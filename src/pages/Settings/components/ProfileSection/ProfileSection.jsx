@@ -16,7 +16,8 @@ const ProfileSection = () => {
         handleImageChange,
         handleSave,
         handleCancel,
-        t
+        t,
+        loading
     } = useProfile();
 
     const genderOptions = [
@@ -103,6 +104,7 @@ const ProfileSection = () => {
                 onSave={handleSave}
                 onCancel={handleCancel}
                 t={t}
+                loading={loading} 
             />
         </SettingSection>
     );

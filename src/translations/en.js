@@ -3,6 +3,10 @@ const en = {
   "app.name": "MoneyAI",
   "welcome": "Welcome, {name}!",
   "welcome.subtitle": "Here's what's happening with your money today.",
+  "common.sending": "Sending...",
+  "common.saving": "Saving...",
+
+
 
   // Navigation
   "nav.dashboard": "Dashboard",
@@ -35,10 +39,10 @@ const en = {
   "dashboard.current_vs_limit": "Current vs Limit",
   "dashboard.over_limit": "You've exceeded your monthly limit!",
   "dashboard.no_limit_set": "No monthly limit set",
-"dashboard.set_limit": "Set Limit",
+  "dashboard.set_limit": "Set Limit",
 
-"dashboard.near_limit_warning": "You're close to your monthly limit!",
-"dashboard.over_limit_alert": "You've exceeded your monthly limit!",
+  "dashboard.near_limit_warning": "You're close to your monthly limit!",
+  "dashboard.over_limit_alert": "You've exceeded your monthly limit!",
 
 
 
@@ -49,7 +53,7 @@ const en = {
   "transaction.category_name": "Category name...",
 
   "category.no_categories": "No categories available",
-"category.add_first": "Add your first category",
+  "category.add_first": "Add your first category",
   "transaction.save": "Save Transaction",
   "common.cancel": "Cancel",
 
@@ -263,6 +267,10 @@ const en = {
   "auth.have_account": "Already have an account?",
   "auth.signup": "Sign Up",
 
+  "auth.logging_in": "Logging in...",
+  "auth.creating_account": "Creating account...",
+  "auth.invalid_credentials": "Invalid email or password!",
+
   // Forgot Password
   "forgot.title": "Forgot Password",
   "forgot.reset_title": "Reset Password",
@@ -286,6 +294,10 @@ const en = {
   "forgot.password_short": "Password must be at least 6 characters",
   "forgot.send_failed": "Failed to send reset code. Please try again.",
   "forgot.reset_failed": "Failed to reset password. Please try again.",
+  "forgot.no_request": "No reset request found. Please start over.",
+
+  "common.back": "Back",
+  "common.resetting": "Resetting...",
 
   // Delete Account
   "delete.title": "Delete account (Requires Email Verification)",

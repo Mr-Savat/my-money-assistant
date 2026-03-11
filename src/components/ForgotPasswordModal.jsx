@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { X, Mail, Key, ArrowLeft } from 'lucide-react';
+import { X, Mail, Key, ArrowLeft, Loader } from 'lucide-react';
 import { sendResetPasswordEmail } from '../services/emailService';
+import { useTranslation } from '../hooks/useTranslation'; // ++++++ បន្ថែម Translation ++++++
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
+    const { t } = useTranslation(); // ++++++ ប្រើ Translation ++++++
     const [step, setStep] = useState('email'); // 'email' or 'reset'
     const [email, setEmail] = useState('');
     const [resetCode, setResetCode] = useState('');
@@ -30,7 +32,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             const savedUser = savedUserString ? JSON.parse(savedUserString) : null;
 
             if (!savedUser || savedUser.email !== email) {
-                setError('Email not found. Please check your email.');
+                setError(t('forgot.email_not_found'));
                 setLoading(false);
                 return;
             }
@@ -49,10 +51,10 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             // ផ្ញើ Email
             await sendResetPasswordEmail(email, code);
 
-            setSuccess('Reset code sent to your email!');
+            setSuccess(t('forgot.code_sent'));
             setStep('reset');
         } catch (err) {
-            setError('Failed to send reset code. Please try again.');
+            setError(t('forgot.send_failed'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -67,13 +69,13 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
         // ពិនិត្យពាក្យសម្ងាត់
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
+            setError(t('forgot.passwords_mismatch'));
             setLoading(false);
             return;
         }
 
         if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters');
+            setError(t('forgot.password_short'));
             setLoading(false);
             return;
         }
@@ -82,7 +84,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             // ទាញ Reset Data ពី localStorage
             const resetDataString = localStorage.getItem('reset_password');
             if (!resetDataString) {
-                setError('No reset request found. Please start over.');
+                setError(t('forgot.no_request'));
                 setStep('email');
                 setLoading(false);
                 return;
@@ -92,14 +94,14 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
             // ពិនិត្យថា Code ត្រឹមត្រូវ
             if (resetData.code !== resetCode) {
-                setError('Invalid reset code');
+                setError(t('forgot.invalid_code'));
                 setLoading(false);
                 return;
             }
 
             // ពិនិត្យថា Code មិនទាន់ផុតកំណត់
             if (Date.now() > resetData.expiresAt) {
-                setError('Reset code has expired. Please request a new one.');
+                setError(t('forgot.code_expired'));
                 localStorage.removeItem('reset_password');
                 setStep('email');
                 setLoading(false);
@@ -117,7 +119,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             // លុប Reset Data
             localStorage.removeItem('reset_password');
 
-            setSuccess('Password reset successfully!');
+            setSuccess(t('forgot.success'));
 
             // បិទ Modal បន្ទាប់ពី 2 វិនាទី
             setTimeout(() => {
@@ -130,7 +132,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             }, 2000);
 
         } catch (err) {
-            setError('Failed to reset password. Please try again.');
+            setError(t('forgot.reset_failed'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -151,9 +153,13 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {step === 'email' ? 'Forgot Password' : 'Reset Password'}
+                        {step === 'email' ? t('forgot.title') : t('forgot.reset_title')}
                     </h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                    <button 
+                        onClick={onClose} 
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                        disabled={loading}
+                    >
                         <X size={20} className="text-gray-500 dark:text-gray-400" />
                     </button>
                 </div>
@@ -175,26 +181,37 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     <form onSubmit={handleSendCode}>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Enter your email address
+                                {t('forgot.email_label')}
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-                                    placeholder="your@email.com"
+                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
+                                    placeholder={t('forgot.email_placeholder')}
                                     required
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-2 cursor-pointer bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition-colors"
+                            className={`w-full py-2 cursor-pointer bg-indigo-600 text-white rounded-lg font-semibold 
+                                hover:bg-indigo-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 
+                                transition-colors flex items-center justify-center gap-2
+                                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            {loading ? 'Sending...' : 'Send Reset Code'}
+                            {loading ? (
+                                <>
+                                    <Loader size={18} className="animate-spin" />
+                                    <span>{t('common.sending')}</span>
+                                </>
+                            ) : (
+                                t('forgot.send_code')
+                            )}
                         </button>
                     </form>
                 ) : (
@@ -202,47 +219,50 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     <form onSubmit={handleResetPassword}>
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Reset Code (6 digits)
+                                {t('forgot.code_label')}
                             </label>
                             <div className="relative">
-                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
                                 <input
                                     type="text"
                                     value={resetCode}
                                     onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-                                    placeholder="123456"
+                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
+                                    placeholder={t('forgot.code_placeholder')}
                                     maxLength="6"
                                     required
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
 
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                New Password
+                                {t('forgot.new_password')}
                             </label>
                             <input
                                 type="password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
                                 placeholder="••••••••"
                                 required
+                                disabled={loading}
                             />
                         </div>
 
                         <div className="mb-6">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Confirm Password
+                                {t('forgot.confirm_password')}
                             </label>
                             <input
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
                                 placeholder="••••••••"
                                 required
+                                disabled={loading}
                             />
                         </div>
 
@@ -250,16 +270,31 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                             <button
                                 type="button"
                                 onClick={handleBack}
-                                className="flex-1 py-2 border cursor-pointer border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1"
+                                disabled={loading}
+                                className={`flex-1 py-2 border cursor-pointer border-gray-300 dark:border-gray-600 
+                                    text-gray-700 dark:text-gray-300 rounded-lg font-semibold 
+                                    hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors 
+                                    flex items-center justify-center gap-1
+                                    ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                <ArrowLeft size={16} /> Back
+                                <ArrowLeft size={16} /> {t('common.back')}
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 py-2 cursor-pointer bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition-colors"
+                                className={`flex-1 py-2 cursor-pointer bg-indigo-600 text-white rounded-lg font-semibold 
+                                    hover:bg-indigo-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 
+                                    transition-colors flex items-center justify-center gap-2
+                                    ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                {loading ? 'Resetting...' : 'Reset Password'}
+                                {loading ? (
+                                    <>
+                                        <Loader size={16} className="animate-spin" />
+                                        <span>{t('common.resetting')}</span>
+                                    </>
+                                ) : (
+                                    t('forgot.reset_button')
+                                )}
                             </button>
                         </div>
                     </form>

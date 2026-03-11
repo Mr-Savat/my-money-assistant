@@ -5,21 +5,25 @@ import ExpenseCard from './cards/ExpenseCard';
 import LimitCard from './cards/LimitCard';
 
 function DashboardSummaryCards() {
-  const { 
-    t, 
-    stats, 
-    userData, 
-    hasLimit, 
-    spendingPercentage, 
-    isOverLimit, 
-    formatCurrency 
+  const {
+    t,
+    stats,
+    userData,
+    hasLimit,
+    spendingPercentage,
+    isOverLimit,
+    formatCurrency,
+    animatedBalance,
+    animatedIncome,
+    animatedExpense,
+
   } = useDashboardSummaryCards();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-      <BalanceCard value={formatCurrency(stats.balance)} t={t} />
-      <IncomeCard value={formatCurrency(stats.income)} t={t} />
-      <ExpenseCard value={formatCurrency(stats.expense)} t={t} />
+      <BalanceCard value={formatCurrency(animatedBalance)} t={t} />
+      <IncomeCard value={formatCurrency(animatedIncome)} t={t} />
+      <ExpenseCard value={formatCurrency(animatedExpense)} t={t} />
       <LimitCard
         hasLimit={hasLimit}
         userData={userData}

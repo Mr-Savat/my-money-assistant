@@ -16,6 +16,7 @@ export const useProfile = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);  
 
   // Load user data from localStorage
   useEffect(() => {
@@ -53,6 +54,7 @@ export const useProfile = () => {
   const handleSave = async () => {
     const savedUserString = localStorage.getItem('user_data');
     const currentData = savedUserString ? JSON.parse(savedUserString) : {};
+    setLoading(true); 
 
     const updatedData = {
       ...currentData,
@@ -67,7 +69,10 @@ export const useProfile = () => {
       );
     } catch (error) {
       console.error("Could not send profile update email:", error);
+    } finally {
+      setLoading(false);
     }
+
 
 
     localStorage.setItem('user_data', JSON.stringify(updatedData));
@@ -105,6 +110,7 @@ export const useProfile = () => {
     handleImageChange,
     handleSave,
     handleCancel,
-    t
+    t, 
+    loading
   };
 };

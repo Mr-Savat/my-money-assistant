@@ -1,6 +1,7 @@
-import { Trash2, AlertCircle, Key } from "lucide-react";
+import { Trash2, AlertCircle, Key, Loader } from "lucide-react";
 import { useDangerZone } from "../hooks/useDangerZone";
 import { SettingSection } from "./index";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 function DangerZone() {
   const {
@@ -10,7 +11,8 @@ function DangerZone() {
     startDeletionProcess,
     handleFinalDelete,
     resetStep,
-    t
+    t,
+    loading
   } = useDangerZone();
 
   return (
@@ -29,9 +31,18 @@ function DangerZone() {
             </div>
             <button
               onClick={startDeletionProcess}
-              className="px-4 sm:px-6 py-2 sm:py-2.5 cursor-pointer bg-red-600 dark:bg-red-700 text-white rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-red-700 dark:hover:bg-red-800 transition-all w-full sm:w-auto"
+              disabled={loading}
+              className={`px-4 sm:px-6 py-2 sm:py-2.5 cursor-pointer 
+                bg-red-600 dark:bg-red-700 text-white rounded-lg sm:rounded-xl 
+                font-bold text-xs sm:text-sm hover:bg-red-700 dark:hover:bg-red-800 
+                transition-all w-full sm:w-auto
+                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {t('danger.delete_button')}
+              {loading ? (
+                <LoadingSpinner text={t('common.sending')} />
+              ) : (
+                t('danger.delete_button')
+              )}
             </button>
           </div>
         ) : (
