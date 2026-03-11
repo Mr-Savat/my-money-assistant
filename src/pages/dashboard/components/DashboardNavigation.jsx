@@ -3,8 +3,8 @@ import { NotificationsSection } from '../../Settings/components';
 import { useDashboardNavigation } from '../hooks/useDashboardNavigation';
 
 function DashboardNavigation() {
-    const { userName, userImage, showNotifications, setShowNotifications, t, isAnyNotificationOn } = useDashboardNavigation();
- 
+  const { userName, userImage, showNotifications, setShowNotifications, t, isAnyNotificationOn } = useDashboardNavigation();
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 lg:mb-10 gap-3 sm:gap-4">
       <div>
@@ -32,7 +32,8 @@ function DashboardNavigation() {
             )}
           </div>
           <div className="block">
-            <p className="text-xs sm:text-sm font-bold leading-none truncate max-w-15 sm:max-w-25 text-gray-900 dark:text-white">
+            {/* Increased max-width here so the name is visible */}
+            <p className="text-xs sm:text-sm font-bold leading-none truncate max-w-25 sm:max-w-37.5 lg:max-w-50 text-gray-900 dark:text-white">
               {userName}
             </p>
           </div>
@@ -43,8 +44,8 @@ function DashboardNavigation() {
           <button
             onClick={() => setShowNotifications(!showNotifications)}
             className={`p-1.5 sm:p-2 transition-colors relative rounded-lg sm:rounded-xl ${isAnyNotificationOn()
-                ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30'
-                : 'text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+              ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30'
+              : 'text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
           >
             <Bell size={16} className="sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 cursor-pointer" />
@@ -70,7 +71,7 @@ function DashboardNavigation() {
                   </button>
                 </div>
                 <div className="p-1 sm:p-2">
-                  <NotificationsSection/>
+                  <NotificationsSection />
                 </div>
               </div>
             </>

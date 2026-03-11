@@ -183,7 +183,7 @@ const km = {
   "blockchain.from_to": "ពី / ទៅ",
   "blockchain.status": "ស្ថានភាព",
   "blockchain.actions": "សកម្មភាព",
-  "blockchain.scroll_hint": "← → រំកិលទៅឆ្វេងស្តាំដើម្បីមើលបន្ថែម",
+  "blockchain.scroll_hint": "រំកិលទៅឆ្វេងស្តាំដើម្បីមើលបន្ថែម",
 
   // Settings
   "settings.title": "ការកំណត់",

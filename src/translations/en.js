@@ -184,7 +184,7 @@ const en = {
   "blockchain.from_to": "From / To",
   "blockchain.status": "Status",
   "blockchain.actions": "Actions",
-  "blockchain.scroll_hint": "← → Scroll horizontally to see more",
+  "blockchain.scroll_hint": "Scroll horizontally to see more",
 
   // Settings
   "settings.title": "Settings",

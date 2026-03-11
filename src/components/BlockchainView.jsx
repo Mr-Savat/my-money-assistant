@@ -21,8 +21,9 @@ const BlockchainView = () => {
   ];
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-gray-50/50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 text-slate-900 dark:text-gray-200 space-y-6 sm:space-y-8 animate-in fade-in duration-500 transition-colors">
-
+    <div className="min-h-screen overflow-y-auto bg-gray-50/50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 text-slate-900 dark:text-gray-200 transition-colors">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-500">
+        
       {/* Header - Responsive */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -100,7 +101,7 @@ const BlockchainView = () => {
                   <td className="px-3 sm:px-6 py-3 sm:py-5">
                     <div className="flex items-center gap-1 sm:gap-2">
                       <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
-                        txn.status === 'Confirmed' ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-amber-400 animate-pulse'
+                        txn.status === 'Confirmed' ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-amber-400'
                       }`} />
                       <span className={`text-[8px] sm:text-xs font-bold ${
                         txn.status === 'Confirmed' ? 'text-slate-700 dark:text-gray-300' : 'text-amber-600 dark:text-amber-400'
@@ -126,6 +127,7 @@ const BlockchainView = () => {
           {t('blockchain.scroll_hint')}
         </div>
       </div>
+    </div>
     </div>
   );
 };

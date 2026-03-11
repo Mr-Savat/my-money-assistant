@@ -63,11 +63,7 @@ const CategorySelector = ({ formData, setFormData, categories, setCategories }) 
                             <div className="fixed inset-0 z-20" onClick={() => setIsOpen(false)} />
 
                             {categories.filter(cat => cat.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 ? (
-                                <ul className={`
-                                                absolute z-30 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto overflow-x-hidden
-                                                bottom-full mb-1 top-auto 
-                                                sm:top-full sm:bottom-auto sm:mt-1 
-                                             `}>
+                                                                           <ul className="absolute z-30 w-full bottom-full mb-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
                                     {categories
                                         .filter(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()))
                                         .map((cat) => (

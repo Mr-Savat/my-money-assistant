@@ -1,28 +1,52 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
+
 export const useDashboardSummaryCards = () => {
     const { t } = useTranslation();
-    const [stats, setStats] = useState({
-      balance: 0,
-      income: 0,
-      expense: 0
+    
+    // ++++++ ទាញទិន្នន័យពី localStorage ក្នុង useState ++++++
+    const [stats, setStats] = useState(() => {
+      const saved = localStorage.getItem('user_transactions_list');
+      const transactions = saved ? JSON.parse(saved) : [];
+      
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth();
+
+      const currentMonthTransactions = transactions.filter(t => {
+        const transDate = new Date(t.date);
+        return transDate.getFullYear() === currentYear &&
+          transDate.getMonth() === currentMonth;
+      });
+
+      const totals = currentMonthTransactions.reduce((acc, curr) => {
+        const amount = parseFloat(curr.amount);
+        if (amount > 0) {
+          acc.income += amount;
+        } else {
+          acc.expense += Math.abs(amount);
+        }
+        acc.balance += amount;
+        return acc;
+      }, { balance: 0, income: 0, expense: 0 });
+
+      return totals;
     });
-    const [userData, setUserData] = useState({
-      spendingLimit: 0,
-      monthlySalary: 0
-    });
-  
-    useEffect(() => {
+
+    const [userData] = useState(() => {
       const savedUser = localStorage.getItem('user_data');
       if (savedUser) {
         const user = JSON.parse(savedUser);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setUserData({
+        return {
           spendingLimit: user.spendingLimit || 0,
           monthlySalary: user.monthlySalary || 0
-        });
+        };
       }
-    }, []);
+      return {
+        spendingLimit: 0,
+        monthlySalary: 0
+      };
+    });
   
     // 2. គណនា Percentage
     const hasLimit = userData.spendingLimit && userData.spendingLimit > 0;
@@ -36,7 +60,6 @@ export const useDashboardSummaryCards = () => {
       const saved = localStorage.getItem('user_transactions_list');
       const transactions = saved ? JSON.parse(saved) : [];
   
-      //  បន្ថែមតែត្រង់នេះ 
       // យកតែខែបច្ចុប្បន្ន
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
@@ -47,9 +70,8 @@ export const useDashboardSummaryCards = () => {
         return transDate.getFullYear() === currentYear &&
           transDate.getMonth() === currentMonth;
       });
-      //  បញ្ចប់ការបន្ថែម 
   
-      const totals = currentMonthTransactions.reduce((acc, curr) => { // កែពី transactions ជា currentMonthTransactions
+      const totals = currentMonthTransactions.reduce((acc, curr) => {
         const amount = parseFloat(curr.amount);
         if (amount > 0) {
           acc.income += amount;
@@ -64,10 +86,6 @@ export const useDashboardSummaryCards = () => {
     };
   
     useEffect(() => {
-      // Initial calculation
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      calculateStats();
-  
       // Listen for changes in localStorage from other components
       window.addEventListener('storage', calculateStats);
   
