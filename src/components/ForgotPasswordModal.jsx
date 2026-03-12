@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { X, Mail, Key, ArrowLeft, Loader } from 'lucide-react';
 import { sendResetPasswordEmail } from '../services/emailService';
-import { useTranslation } from '../hooks/useTranslation'; // ++++++ បន្ថែម Translation ++++++
+import { useTranslation } from '../hooks/useTranslation'; // បន្ថែម Translation
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
-    const { t } = useTranslation(); // ++++++ ប្រើ Translation ++++++
+    const { t } = useTranslation(); // ប្រើ Translation
     const [step, setStep] = useState('email'); // 'email' or 'reset'
     const [email, setEmail] = useState('');
     const [resetCode, setResetCode] = useState('');

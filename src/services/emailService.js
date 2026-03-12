@@ -28,7 +28,7 @@ export const sendNotificationEmail = async (title, message) => {
     }
 };
 
-// ++++++++++ ផ្ញើ Reset Password Email (មិនត្រូវការ Notification Settings) ++++++++++
+//  ផ្ញើ Reset Password Email (មិនត្រូវការ Notification Settings) 
 export const sendResetPasswordEmail = async (email, resetCode) => {
     // រកមើលអ្នកប្រើតាមអ៊ីមែល
     const userData = JSON.parse(localStorage.getItem('user_data'));
@@ -61,7 +61,7 @@ export const sendResetPasswordEmail = async (email, resetCode) => {
     }
 };
 
-// ++++++++++ ផ្ញើ Email ដោយគ្មានអ្នកប្រើ (សម្រាប់ Forgot Password) ++++++++++
+//  ផ្ញើ Email ដោយគ្មានអ្នកប្រើ (សម្រាប់ Forgot Password) 
 export const sendEmailDirect = async (toEmail, toName, subject, message) => {
     const templateParams = {
         name: toName,
