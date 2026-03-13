@@ -299,6 +299,27 @@ const en = {
   "common.back": "Back",
   "common.resetting": "Resetting...",
 
+  "forgot.reset_email_sent": "Password reset email sent! Please check your inbox.",
+  "forgot.password_reset_success": "Password reset successfully! You can now login.",
+  "forgot.send_reset_link": "Send Reset Link",
+  "forgot.firebase_info": "Firebase will send a password reset link to your email.",
+  "forgot.firebase_instruction": "Check your email and click the link to reset your password.",
+  "forgot.too_many_requests": "Too many requests. Please try again later.",
+
+
+  "auth.verification_email_sent": "Verification email sent! Please check your inbox.",
+  "auth.registration_failed": "Registration failed. Please try again.",
+  "auth.login_failed": "Login failed. Please try again.",
+  "auth.email_not_verified": "Please verify your email before logging in.",
+  "auth.email_already_in_use": "Email already in use.",
+  "auth.invalid_email": "Invalid email address.",
+  "auth.weak_password": "Password should be at least 6 characters.",
+  "auth.unknown_error": "An error occurred. Please try again.",
+
+  "auth.or_continue_with": "Or continue with",
+  "auth.sign_in_with_google": "Sign in with Google",
+  "auth.google_signin_failed": "Google Sign-In failed. Please try again.",
+
   // Delete Account
   "delete.title": "Delete account (Requires Email Verification)",
   "delete.button": "Delete Account",

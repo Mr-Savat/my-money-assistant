@@ -299,6 +299,26 @@ const km = {
   "common.back": "ត្រឡប់ក្រោយ",
   "common.resetting": "កំពុងកំណត់ឡើងវិញ...",
 
+
+  "forgot.reset_email_sent": "អ៊ីមែលកំណត់ពាក្យសម្ងាត់ឡើងវិញត្រូវបានផ្ញើ! សូមពិនិត្យប្រអប់សាររបស់អ្នក។",
+  "forgot.password_reset_success": "កំណត់ពាក្យសម្ងាត់ឡើងវិញដោយជោគជ័យ! ឥឡូវអ្នកអាចចូលបាន។",
+  "forgot.send_reset_link": "ផ្ញើតំណកំណត់ឡើងវិញ",
+  "forgot.firebase_info": "Firebase នឹងផ្ញើតំណកំណត់ពាក្យសម្ងាត់ឡើងវិញទៅកាន់អ៊ីមែលរបស់អ្នក។",
+  "forgot.firebase_instruction": "ពិនិត្យអ៊ីមែលរបស់អ្នក ហើយចុចតំណដើម្បីកំណត់ពាក្យសម្ងាត់ឡើងវិញ។",
+  "forgot.too_many_requests": "សំណើច្រើនពេក។ សូមព្យាយាមម្តងទៀតនៅពេលក្រោយ។",
+
+  "auth.verification_email_sent": "អ៊ីមែលបញ្ជាក់ត្រូវបានផ្ញើ! សូមពិនិត្យប្រអប់សាររបស់អ្នក។",
+  "auth.registration_failed": "ការចុះឈ្មោះបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "auth.login_failed": "ការចូលបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "auth.email_not_verified": "សូមផ្ទៀងផ្ទាត់អ៊ីមែលរបស់អ្នកមុនពេលចូល។",
+  "auth.email_already_in_use": "អ៊ីមែលនេះត្រូវបានប្រើរួចហើយ។",
+  "auth.invalid_email": "អាសយដ្ឋានអ៊ីមែលមិនត្រឹមត្រូវ។",
+  "auth.weak_password": "ពាក្យសម្ងាត់ត្រូវមានយ៉ាងហោចណាស់ ៦ តួអក្សរ។",
+  "auth.unknown_error": "មានបញ្ហាកើតឡើង។ សូមព្យាយាមម្តងទៀត។",
+
+  "auth.or_continue_with": "ឬបន្តជាមួយ",
+  "auth.sign_in_with_google": "ចូលជាមួយ Google",
+  "auth.google_signin_failed": "ការចូលជាមួយ Google បរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
   // Delete Account
   "delete.title": "លុបគណនី (តម្រូវឱ្យមានការផ្ទៀងផ្ទាត់អ៊ីមែល)",
   "delete.button": "លុបគណនី",
