@@ -1,73 +1,107 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
-export const useDashboardChart = () => {
-      const { t } = useTranslation();
-      const [chartData, setChartData] = useState([]);
-      const [hasData, setHasData] = useState(false);
-    
-      useEffect(() => {
-        const updateChart = () => {
-          const saved = localStorage.getItem('user_transactions_list');
-          const transactions = saved ? JSON.parse(saved) : [];
-    
-          // យកតែខែបច្ចុប្បន្ន
-          const currentDate = new Date();
-          const currentYear = currentDate.getFullYear();
-          const currentMonth = currentDate.getMonth();
-    
-          const currentMonthTransactions = transactions.filter(t => {
-            const transDate = new Date(t.date);
-            return transDate.getFullYear() === currentYear &&
-              transDate.getMonth() === currentMonth;
-          });
-    
-          // ពិនិត្យថាមានទិន្នន័យទេ? 
-          setHasData(currentMonthTransactions.length > 0);
-    
-          const dailyData = currentMonthTransactions.reduce((acc, curr) => {
-            const date = curr.date;
-    
-            if (!acc[date]) {
-              acc[date] = {
-                name: date,
-                income: 0,
-                expense: 0
-              };
-            }
-    
-            const amount = parseFloat(curr.amount);
-            if (amount > 0) {
-              acc[date].income += amount;
-            } else {
-              acc[date].expense += Math.abs(amount);
-            }
-            return acc;
-          }, {});
-    
-          // Sort តាមថ្ងៃ
-          const sortedDays = Object.values(dailyData).sort((a, b) => {
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return 1;
-            return 0;
-          });
-    
-          setChartData(sortedDays);
-        };
-    
-        updateChart();
-        const interval = setInterval(updateChart, 1000);
-        return () => clearInterval(interval);
-      }, []);
-    
-      const formatDate = (dateStr) => {
-        if (!dateStr || dateStr.includes('Next')) return dateStr;
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      };
-    
-      const formatMoney = (value) => `$${value?.toLocaleString()}`;
+import { useCachedState } from "../../../hooks/useCachedState";
+import { auth } from "../../../firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
 
-      return{
-        t, hasData, chartData, formatDate, formatMoney
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+export const useDashboardChart = () => {
+  const { t } = useTranslation();
+  
+  //  ប្រើ useCachedState ជំនួស useState 
+  const [chartData, setChartData] = useCachedState('dashboard_chart', []);
+  const [hasData, setHasData] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+      if (!user) {
+        setLoading(false);
       }
-}
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const getToken = async () => {
+    const user = auth.currentUser;
+    if (!user) return null;
+    return await user.getIdToken();
+  };
+
+  const fetchDailyData = async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_URL}/api/dashboard/daily`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setHasData(data.daily.length > 0);
+        
+        const formatted = data.daily.map(item => ({
+          name: item.date,
+          income: item.income,
+          expense: item.expense
+        }));
+        
+        setChartData(formatted);
+      }
+    } catch (err) {
+      console.error('Error fetching daily data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDailyData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  // Refresh every 30 seconds
+  useEffect(() => {
+    if (!isAuthenticated) return;
+  
+    fetchDailyData();
+  
+    const interval = setInterval(fetchDailyData, 30000);
+    
+    //  ស្តាប់ transactions-updated event 
+    const handleTransactionUpdate = () => {
+      fetchDailyData(); // ទាញយក Chart ថ្មី
+    };
+  
+    window.addEventListener('transactions-updated', handleTransactionUpdate);
+  
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('transactions-updated', handleTransactionUpdate);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return dateStr;
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const formatMoney = (value) => `$${value?.toLocaleString()}`;
+
+  return {
+    t, 
+    hasData, 
+    chartData, 
+    formatDate, 
+    formatMoney,
+    loading
+  };
+};

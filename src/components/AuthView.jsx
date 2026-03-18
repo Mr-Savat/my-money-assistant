@@ -65,6 +65,7 @@ const AuthView = ({ mode }) => {
         }
 
         const idToken = await user.getIdToken();
+console.log("TEST THIS TOKEN:", idToken); // Add this line
         const response = await fetch(`${API_URL}/api/auth/verify-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

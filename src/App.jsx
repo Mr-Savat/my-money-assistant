@@ -45,6 +45,7 @@ const App = () => {
         </Routes>
       </Router>
     </LanguageProvider>
+    
   );
 };
 

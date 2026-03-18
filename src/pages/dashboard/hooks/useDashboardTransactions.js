@@ -1,38 +1,22 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { useCachedState } from "../../../hooks/useCachedState";
+import { auth } from "../../../firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const useDashboardTransaction = () => {
     const { t } = useTranslation();
-    const [userData, setUserData] = useState({ spendingLimit: 0 });
+    
+    // ++++++ ប្រើ useCachedState ជំនួស useState ++++++
+    const [transactions, setTransactions] = useCachedState('transactions', []);
+    const [categories, setCategories] = useCachedState('categories', ["Food", "Lunch", "Dinner"]);
+    const [userData, setUserData] = useCachedState('user_profile', { spendingLimit: 0 });
+    
     const [showLimitWarning, setShowLimitWarning] = useState(false);
-
-
-    // ទាញទិន្នន័យអ្នកប្រើ
-    useEffect(() => {
-        const savedUser = localStorage.getItem('user_data');
-        if (savedUser) {
-            const user = JSON.parse(savedUser);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setUserData({
-                spendingLimit: user.spendingLimit || 0
-            });
-        }
-    }, []);
-
-
-    // --- STATE MANAGEMENT ---
-    const [transactions, setTransactions] = useState(() => {
-        const saved = localStorage.getItem('user_transactions_list');
-        if (!saved) return [];
-
-        const allTransactions = JSON.parse(saved);
-        // Sort តាមថ្ងៃថ្មីបំផុតនៅខាងលើ
-        return allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-    });
-
-    const [categories, setCategories] = useState(() => {
-        const saved = localStorage.getItem('user_categories_list');
-        return saved ? JSON.parse(saved) : ["Food", "Lunch", "Dinner"];
-    });
+    const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const [showAll, setShowAll] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,26 +28,115 @@ export const useDashboardTransaction = () => {
         category: ''
     });
 
-    // --- EFFECTS ---
     useEffect(() => {
-        localStorage.setItem('user_transactions_list', JSON.stringify(transactions));
-    }, [transactions]);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setIsAuthenticated(!!user);
+            if (!user) {
+                setLoading(false);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
-    useEffect(() => {
-        localStorage.setItem('user_categories_list', JSON.stringify(categories));
-    }, [categories]);
+    const getToken = async () => {
+        const user = auth.currentUser;
+        if (!user) return null;
+        return await user.getIdToken();
+    };
 
-    // --- HANDLERS ---
-    const deleteTransaction = (id) => {
-        if (window.confirm(t('transaction.delete_confirm'))) {
-            setTransactions(transactions.filter(t => t.id !== id));
+    const fetchTransactions = async () => {
+        if (!isAuthenticated) return;
+
+        try {
+            const token = await getToken();
+            const response = await fetch(`${API_URL}/api/transactions`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const sorted = data.transactions.sort((a, b) =>
+                    new Date(b.date) - new Date(a.date)
+                );
+                setTransactions(sorted);
+            }
+        } catch (err) {
+            console.error('Error fetching transactions:', err);
+        } finally {
+            setLoading(false);
         }
     };
-    //  កែប្រែ handleAdd ឲ្យមាន Duplicate Check 
-    const handleAdd = (e) => {
+
+    const fetchCategories = async () => {
+        if (!isAuthenticated) return;
+        
+        try {
+            const token = await getToken();
+            const response = await fetch(`${API_URL}/api/categories`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success && data.categories.length > 0) {
+                setCategories(data.categories.map(c => c.name));
+            }
+        } catch (err) {
+            console.error('Error fetching categories:', err);
+        }
+    };
+
+    const fetchUserData = async () => {
+        if (!isAuthenticated) return;
+        
+        try {
+            const token = await getToken();
+            const response = await fetch(`${API_URL}/api/users/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setUserData({
+                    spendingLimit: data.user.spendingLimit || 0
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching user data:', err);
+        }
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            Promise.all([
+                fetchTransactions(),
+                fetchCategories(),
+                fetchUserData()
+            ]).finally(() => setLoading(false));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
+
+    const deleteTransaction = async (id) => {
+        if (!window.confirm(t('transaction.delete_confirm'))) return;
+
+        try {
+            const token = await getToken();
+            const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                setTransactions(transactions.filter(t => t.id !== id));
+                window.dispatchEvent(new CustomEvent('transactions-updated'));
+            }
+        } catch (err) {
+            console.error('Error deleting transaction:', err);
+        }
+    };
+
+    const handleAdd = async (e) => {
         e.preventDefault();
 
-        // បង្កើត Transaction ថ្មី (ដោយគ្មាន ID នៅឡើយ)
         const newTransaction = {
             date: formData.date,
             description: formData.description.trim(),
@@ -71,7 +144,7 @@ export const useDashboardTransaction = () => {
             category: formData.category
         };
 
-        //  ពិនិត្យរក Duplicate 
+        // ពិនិត្យ Duplicate
         const isDuplicate = transactions.some(t =>
             t.date === newTransaction.date &&
             t.amount === newTransaction.amount &&
@@ -79,7 +152,6 @@ export const useDashboardTransaction = () => {
         );
 
         if (isDuplicate) {
-            // បង្ហាញ Confirm Dialog
             const confirmAdd = window.confirm(
                 `${t('transaction.duplicate_title')}\n\n` +
                 `${t('transaction.duplicate_message')}\n` +
@@ -90,67 +162,63 @@ export const useDashboardTransaction = () => {
                 `${t('transaction.duplicate_question')}`
             );
 
-            if (!confirmAdd) {
-                return; // បោះបង់ការបន្ថែម
-            }
+            if (!confirmAdd) return;
         }
 
-        // បន្ថែម ID ហើយរក្សាទុក
-        const transactionWithId = {
-            id: Date.now(),
-            ...newTransaction
-        };
+        try {
+            const token = await getToken();
+            const response = await fetch(`${API_URL}/api/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(newTransaction)
+            });
 
-        const updatedTransactions = [transactionWithId, ...transactions];
-        const sortedTransactions = updatedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const data = await response.json();
 
-        setTransactions(sortedTransactions);
-        setIsModalOpen(false);
-        setFormData({ ...formData, description: '', amount: '' });
+            if (data.success) {
+                setTransactions([data.transaction, ...transactions]);
+                window.dispatchEvent(new CustomEvent('transactions-updated'));
+                setIsModalOpen(false);
+                setFormData({ ...formData, description: '', amount: '' });
 
-        // បង្ហាញសារជោគជ័យ (អាចដកចេញក៏បាន)
-        if (isDuplicate) {
-            alert("✅ Transaction added despite duplicate.");
-        }
+                // ពិនិត្យ Spending Limit
+                if (formData.type === 'expense') {
+                    const currentExpense = transactions
+                        .filter(t => t.amount < 0)
+                        .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
-        //  ពិនិត្យតែពេលជា Expense 
-        if (formData.type === 'expense') {
-            // គណនាចំណាយសរុបបច្ចុប្បន្ន (តែ Expense)
-            const currentExpense = transactions
-                .filter(t => t.amount < 0)
-                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                    const newExpense = currentExpense + Math.abs(newTransaction.amount);
 
-            // គណនាចំណាយថ្មី
-            const newExpense = currentExpense + Math.abs(newTransaction.amount);
+                    if (userData.spendingLimit > 0) {
+                        const percentage = (newExpense / userData.spendingLimit) * 100;
 
-            // ពិនិត្យ Limit
-            if (userData.spendingLimit > 0) {
-                const percentage = (newExpense / userData.spendingLimit) * 100;
-
-                if (percentage >= 80 && percentage < 100) {
-                    setShowLimitWarning(true);
-                    setTimeout(() => setShowLimitWarning(false), 5000);
-                } else if (percentage >= 100) {
-                    alert(t('dashboard.over_limit_alert'));
+                        if (percentage >= 80 && percentage < 100) {
+                            setShowLimitWarning(true);
+                            setTimeout(() => setShowLimitWarning(false), 5000);
+                        } else if (percentage >= 100) {
+                            alert(t('dashboard.over_limit_alert'));
+                        }
+                    }
                 }
             }
+        } catch (err) {
+            console.error('Error adding transaction:', err);
         }
-
-
     };
 
-    //  Function សម្រាប់ Filter យកតែខែមុន និងខែនេះ 
     const getRecentMonthsTransactions = () => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
         const currentMonth = currentDate.getMonth();
 
-        // គណនាខែមុន
         let lastMonth = currentMonth - 1;
         let lastMonthYear = currentYear;
 
         if (lastMonth < 0) {
-            lastMonth = 11; // ខែធ្នូ
+            lastMonth = 11;
             lastMonthYear = currentYear - 1;
         }
 
@@ -158,25 +226,32 @@ export const useDashboardTransaction = () => {
             const transDate = new Date(t.date);
             const transYear = transDate.getFullYear();
             const transMonth = transDate.getMonth();
-
-            // យកតែខែនេះ ឬខែមុន
             return (transYear === currentYear && transMonth === currentMonth) ||
                 (transYear === lastMonthYear && transMonth === lastMonth);
         });
     };
 
-    // Filter transactions
     const filteredTransactions = getRecentMonthsTransactions();
-
-    // Sort តាមថ្ងៃថ្មីបំផុត
     const sortedFiltered = [...filteredTransactions].sort((a, b) =>
         new Date(b.date) - new Date(a.date)
     );
-
-    // If showAll is false, we only render 5 items. If true, we render everything.
     const displayedData = showAll ? sortedFiltered : sortedFiltered.slice(0, 5);
 
-    return{
-        t, showLimitWarning, setCategories, setShowAll, isModalOpen, setIsModalOpen, deleteTransaction, handleAdd, displayedData, sortedFiltered, showAll, formData, setFormData, categories,
-    }
-}
+    return {
+        t,
+        showLimitWarning,
+        setCategories,
+        setShowAll,
+        isModalOpen,
+        setIsModalOpen,
+        deleteTransaction,
+        handleAdd,
+        displayedData,
+        sortedFiltered,
+        showAll,
+        formData,
+        setFormData,
+        categories,
+        loading
+    };
+};

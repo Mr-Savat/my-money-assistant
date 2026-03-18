@@ -4,7 +4,6 @@ import DashboardSummaryCards from './components/DashboardSummaryCards';
 import DashboardChart from './components/DashboardChart';
 import DashboardTransactions from './components/DashboardTransactions';
 
-
 function Dashboard() {
   return (
     <div className="overflow-y-auto bg-[#F8FAFC] dark:bg-gray-900 p-4 md:p-8 text-[#1E293B] dark:text-gray-100 font-sans transition-colors duration-300">
