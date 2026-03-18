@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const useDashboardTransaction = () => {
     const { t } = useTranslation();
     
-    // ++++++ ប្រើ useCachedState ជំនួស useState ++++++
+    //  ប្រើ useCachedState ជំនួស useState 
     const [transactions, setTransactions] = useCachedState('transactions', []);
     const [categories, setCategories] = useCachedState('categories', ["Food", "Lunch", "Dinner"]);
     const [userData, setUserData] = useCachedState('user_profile', { spendingLimit: 0 });
