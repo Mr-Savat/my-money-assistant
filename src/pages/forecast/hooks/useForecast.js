@@ -1,6 +1,9 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { saveTransactions, parseUploadedFile, downloadTemplate } from '../../../utils/transactionUtils';
+import { auth } from "../../../firebase/config";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const useForecast = () => {
     const { t } = useTranslation();
     const [chartData, setChartData] = useState([]);
@@ -122,37 +125,62 @@ export const useForecast = () => {
         e.target.value = '';
     };
 
+    const syncUploadToBackend = async (dataToSync) => {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+            const token = await user.getIdToken();
+            const uploadPromises = dataToSync.map(txn =>
+                fetch(`${API_URL}/api/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        date: txn.date,
+                        description: txn.description,
+                        amount: txn.amount,
+                        category: txn.category || 'Uncategorized'
+                    })
+                })
+            );
+
+            await Promise.all(uploadPromises);
+            window.dispatchEvent(new CustomEvent('transactions-updated'));
+        } catch (err) {
+            console.error("Failed to sync uploads to database:", err);
+        }
+    };
+
     //  Function សម្រាប់បិទ Error 
     const handleCloseError = () => {
         setError("");
     };
 
-    // Function សម្រាប់ Confirm Upload
     const handleUploadConfirm = (option) => {
         setShowUploadModal(false);
-
         const data = uploadFileData;
 
         switch (option) {
-            case 'forecast':
-                // Forecast only
-                processForecastingFromTransactions(data);
-                break;
-
             case 'dashboard':
-                // Dashboard only
+            case 'both':
                 saveTransactions(data, {
                     onDuplicate: (duplicates, unique, onAddAll, onSkip) => {
                         setDuplicateInfo({ duplicates, totalCount: data.length });
                         setUploadData({
-                            onAddAll: () => {
+                            onAddAll: async () => {
                                 onAddAll();
+                                // SYNC ALL TO BACKEND
+                                await syncUploadToBackend(data);
                                 const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
                                 setTransactions(updated);
                                 alert(t('upload.added_dashboard', { count: data.length }));
                             },
-                            onSkip: () => {
+                            onSkip: async () => {
                                 onSkip();
+                                // SYNC ONLY UNIQUE TO BACKEND
+                                await syncUploadToBackend(unique);
                                 const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
                                 setTransactions(updated);
                                 alert(t('upload.added_skipped', { added: unique.length, skipped: duplicates.length }));
@@ -160,43 +188,21 @@ export const useForecast = () => {
                         });
                         setShowDuplicateModal(true);
                     },
-                    onSuccess: (saved) => {
-                        alert(t('upload.added_dashboard', { count: saved.length }));
+                    onSuccess: async (saved) => {
+                        // SYNC TO BACKEND
+                        await syncUploadToBackend(saved);
+
+                        if (option === 'both') processForecastingFromTransactions(data);
+
                         const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
                         setTransactions(updated);
+                        alert(`✅ Added ${saved.length} transactions to Dashboard & Database`);
                     }
                 });
                 break;
 
-            case 'both':
-            default:
-                // Both (Forecast + Dashboard)
-                saveTransactions(data, {
-                    onDuplicate: (duplicates, unique, onAddAll, onSkip) => {
-                        setDuplicateInfo({ duplicates, totalCount: data.length });
-                        setUploadData({
-                            onAddAll: () => {
-                                onAddAll();
-                                processForecastingFromTransactions(data);
-                                const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
-                                setTransactions(updated);
-                            },
-                            onSkip: () => {
-                                onSkip();
-                                processForecastingFromTransactions(unique);
-                                const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
-                                setTransactions(updated);
-                            }
-                        });
-                        setShowDuplicateModal(true);
-                    },
-                    onSuccess: (saved) => {
-                        processForecastingFromTransactions(data);
-                        alert(`✅ Added ${saved.length} transactions to Dashboard`);
-                        const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
-                        setTransactions(updated);
-                    }
-                });
+            case 'forecast':
+                processForecastingFromTransactions(data);
                 break;
         }
     };

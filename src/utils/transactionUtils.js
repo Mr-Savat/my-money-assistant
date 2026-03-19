@@ -51,38 +51,40 @@ export const addIdsToTransactions = (transactions) => {
 export const saveTransactions = (newTransactions, options = {}) => {
   const { mode = 'append', onSuccess, onDuplicate } = options;
 
-  // ទាញទិន្នន័យចាស់
+  // 1. Always get the LATEST data from storage first
   const existing = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
 
-  // បន្ថែម ID
+  // 2. Prepare the new transactions with IDs
   const withIds = addIdsToTransactions(newTransactions);
 
   if (mode === 'replace') {
-    // ជំនួសទាំងអស់
     localStorage.setItem('user_transactions_list', JSON.stringify(withIds));
     onSuccess?.(withIds, []);
     return { saved: withIds, duplicates: [] };
   }
 
-  // រក Duplicate
+  // 3. Check for duplicates against the EXISTING list
   const { duplicates, unique } = findDuplicates(existing, withIds);
 
   if (duplicates.length > 0 && onDuplicate) {
-    // បើមាន Duplicate ហើយមាន Callback
     onDuplicate(duplicates, unique, () => {
-      // Callback ពេលអ្នកប្រើចង់បន្ថែមទាំងអស់
-      const allWithIds = addIdsToTransactions(newTransactions);
-      const merged = [...existing, ...allWithIds];
+      // Callback: User wants to add EVERYTHING (including duplicates)
+      // We pull existing again to make sure we don't lose data added in another tab
+      const currentExisting = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
+      const merged = [...currentExisting, ...withIds]; 
+      
       localStorage.setItem('user_transactions_list', JSON.stringify(merged));
-      onSuccess?.(allWithIds, duplicates);
+      onSuccess?.(withIds, duplicates);
     }, () => {
-      // Callback ពេលអ្នកប្រើចង់រំលង Duplicate
-      const merged = [...existing, ...unique];
+      // Callback: User wants to skip duplicates (Add only unique)
+      const currentExisting = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
+      const merged = [...currentExisting, ...unique];
+      
       localStorage.setItem('user_transactions_list', JSON.stringify(merged));
       onSuccess?.(unique, duplicates);
     });
   } else {
-    // គ្មាន Duplicate រក្សាទុកភ្លាម
+    // No duplicates found, append unique items immediately
     const merged = [...existing, ...unique];
     localStorage.setItem('user_transactions_list', JSON.stringify(merged));
     onSuccess?.(unique, duplicates);
@@ -90,7 +92,6 @@ export const saveTransactions = (newTransactions, options = {}) => {
 
   return { duplicates, unique };
 };
-
 /**
  * អានឯកសារ CSV ឬ Excel
  */
