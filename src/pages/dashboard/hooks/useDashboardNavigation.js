@@ -8,11 +8,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const useDashboardNavigation = () => {
   const { t } = useTranslation();
-  
-  //  ប្រើ useCachedState ជំនួស useState 
+
   const [userName, setUserName] = useCachedState('user_name', 'Guest');
   const [userImage, setUserImage] = useCachedState('user_image', null);
-  
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,12 +25,11 @@ export const useDashboardNavigation = () => {
     }
   });
 
+  // Listen for auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
-      if (!user) {
-        setLoading(false);
-      }
+      if (!user) setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -44,17 +42,16 @@ export const useDashboardNavigation = () => {
 
   const loadUserData = useCallback(async () => {
     if (!isAuthenticated) return;
-
     try {
       const token = await getToken();
       const response = await fetch(`${API_URL}/api/users/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
-      
+
       if (data.success) {
         setUserName(data.user.name || 'Guest');
-        setUserImage(data.user.profileImage || null);
+        setUserImage(data.user.profileImage || null); // fixed from imagePreview
       }
     } catch (err) {
       console.error('Error loading user data:', err);
@@ -64,31 +61,37 @@ export const useDashboardNavigation = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
+  // Load user data when authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      loadUserData();
-    }
+    if (isAuthenticated) loadUserData();
   }, [isAuthenticated, loadUserData]);
 
-  // Listen for storage changes
+  // Listen for events
   useEffect(() => {
     const handleStorage = () => {
       try {
         const saved = localStorage.getItem('user_notifications');
         if (saved) setNotifSettings(JSON.parse(saved));
+
+        // also refresh image from localStorage directly
+        const userData = localStorage.getItem('user_data');
+        if (userData) {
+          const parsed = JSON.parse(userData);
+          setUserName(parsed.name || 'Guest');
+          setUserImage(parsed.profileImage || null);
+        }
       } catch {
         // ignore
       }
     };
 
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('user-updated', loadUserData);
-
+    window.addEventListener('profile-updated', loadUserData);
     return () => {
       window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('user-updated', loadUserData);
+      window.removeEventListener('profile-updated', loadUserData);
     };
-  }, [loadUserData]);
+  }, [loadUserData, setUserImage, setUserName]);
 
   const isAnyNotificationOn = () => {
     return notifSettings.email === true || notifSettings.push === true;

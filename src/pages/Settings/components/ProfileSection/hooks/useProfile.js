@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../../../../hooks/useTranslation';
 import { sendNotificationEmail } from '../../../../../services/emailService';
-// បន្ថែម import auth
 import { auth } from '../../../../../firebase/config';
-
 export const useProfile = () => {
   const { t } = useTranslation();
   const [profile, setProfile] = useState({
@@ -46,41 +44,69 @@ export const useProfile = () => {
     }
   }, []);
 
-  // Handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+  
+    //  compress image before saving
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+  
+    img.onload = () => {
+      // resize to max 200x200
+      const maxSize = 200;
+      let width = img.width;
+      let height = img.height;
+  
+      if (width > height) {
+        if (width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+      }
+  
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+  
+      // compress to jpeg quality 0.7
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      setImagePreview(compressed);
+    };
+  
+    img.src = URL.createObjectURL(file);
   };
 
   // Save profile
   const handleSave = async () => {
     setLoading(true);
-
+  
     try {
-      // ទាញយក token ពី Firebase Auth
       const token = await getToken();
       if (!token) {
         alert('Please login again');
         return;
       }
-
-      // រៀបចំទិន្នន័យសម្រាប់ផ្ញើទៅ Firebase
+  
+      //  just use imagePreview directly (base64)
+      const finalImageUrl = imagePreview;
+  
       const profileData = {
         name: profile.name,
         gender: profile.gender,
         company: profile.company,
         jobTitle: profile.jobTitle,
         monthlySalary: profile.monthlySalary ? parseFloat(profile.monthlySalary) : 0,
-        spendingLimit: profile.spendingLimit ? parseFloat(profile.spendingLimit) : 0
+        spendingLimit: profile.spendingLimit ? parseFloat(profile.spendingLimit) : 0,
+        profileImage: finalImageUrl || null
       };
-
-      // ផ្ញើទៅ Firebase API (PUT)
+  
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       const response = await fetch(`${API_URL}/api/users/profile`, {
         method: 'PUT',
@@ -90,28 +116,26 @@ export const useProfile = () => {
         },
         body: JSON.stringify(profileData)
       });
-
+  
       const data = await response.json();
-
+  
       if (!data.success) {
         throw new Error(data.error || 'Failed to update profile');
       }
-
-      // ប្រសិនបើ Firebase Update ជោគជ័យ ទើប Update localStorage
+  
       const savedUserString = localStorage.getItem('user_data');
       const currentData = savedUserString ? JSON.parse(savedUserString) : {};
-
+  
       const updatedData = {
         ...currentData,
         ...profile,
         spendingLimit: profile.spendingLimit ? parseFloat(profile.spendingLimit) : 0,
         monthlySalary: profile.monthlySalary ? parseFloat(profile.monthlySalary) : 0,
-        profileImage: imagePreview || profile.profileImage
+        profileImage: finalImageUrl || profile.profileImage
       };
-
+  
       localStorage.setItem('user_data', JSON.stringify(updatedData));
-
-      // ផ្ញើ Email 
+  
       try {
         await sendNotificationEmail(
           "Profile Updated",
@@ -119,10 +143,8 @@ export const useProfile = () => {
         );
       } catch (emailError) {
         console.error("Could not send profile update email:", emailError);
-        // មិនប៉ះពាល់ដល់ការ Update ទេ
       }
-
-      // Dispatch events ដើម្បីឲ្យ components ផ្សេងទៀតដឹង
+  
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('profile-updated', {
         detail: {
@@ -131,11 +153,10 @@ export const useProfile = () => {
         }
       }));
       window.dispatchEvent(new CustomEvent('transactions-updated'));
-
-      // បិទការកែប្រែ និងបង្ហាញសារជោគជ័យ
+  
       setIsEditing(false);
       alert(t('profile.updated_success'));
-
+  
     } catch (error) {
       console.error('Error saving profile:', error);
       alert('Failed to update profile: ' + error.message);
