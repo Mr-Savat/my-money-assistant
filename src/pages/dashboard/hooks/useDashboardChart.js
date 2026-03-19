@@ -8,10 +8,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const useDashboardChart = () => {
   const { t } = useTranslation();
-  
   //  ប្រើ useCachedState ជំនួស useState 
   const [chartData, setChartData] = useCachedState('dashboard_chart', []);
-  const [hasData, setHasData] = useState(false);
+  const hasData = chartData.length > 0;
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -40,16 +39,15 @@ export const useDashboardChart = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
-      
+
       if (data.success) {
-        setHasData(data.daily.length > 0);
-        
+
         const formatted = data.daily.map(item => ({
           name: item.date,
           income: item.income,
           expense: item.expense
         }));
-        
+
         setChartData(formatted);
       }
     } catch (err) {
@@ -63,29 +61,29 @@ export const useDashboardChart = () => {
     if (isAuthenticated) {
       fetchDailyData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   // Refresh every 30 seconds
   useEffect(() => {
     if (!isAuthenticated) return;
-  
+
     fetchDailyData();
-  
+
     const interval = setInterval(fetchDailyData, 30000);
-    
+
     //  ស្តាប់ transactions-updated event 
     const handleTransactionUpdate = () => {
       fetchDailyData(); // ទាញយក Chart ថ្មី
     };
-  
+
     window.addEventListener('transactions-updated', handleTransactionUpdate);
-  
+
     return () => {
       clearInterval(interval);
       window.removeEventListener('transactions-updated', handleTransactionUpdate);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   const formatDate = (dateStr) => {
@@ -97,10 +95,10 @@ export const useDashboardChart = () => {
   const formatMoney = (value) => `$${value?.toLocaleString()}`;
 
   return {
-    t, 
-    hasData, 
-    chartData, 
-    formatDate, 
+    t,
+    hasData,
+    chartData,
+    formatDate,
     formatMoney,
     loading
   };
