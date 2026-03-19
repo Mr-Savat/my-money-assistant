@@ -3,10 +3,29 @@
 :root {
   --tooltip-bg: white;
   --tooltip-color: #1E293B;
+  font-family: "Kantumruy Pro", sans-serif;
 }
 
 * {
   transition: background-color .2s, color .2s, border-color .2s;
+}
+
+* {
+  font-family: 'Kantumruy Pro', sans-serif !important;
+}
+
+body {
+  font-family: "Kantumruy Pro", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 .dark {
@@ -64,6 +83,7 @@ html.dark ::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
+
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
@@ -88,6 +108,7 @@ html.dark ::-webkit-scrollbar-thumb,
     opacity: 0;
     transform: translate(-50%, 20px);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, 0);

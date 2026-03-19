@@ -2,14 +2,14 @@ import React from 'react';
 import { Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const LimitCard = ({ 
-  hasLimit, 
-  userData, 
-  stats, 
-  spendingPercentage, 
-  isOverLimit, 
+const LimitCard = ({
+  hasLimit,
+  userData,
+  stats,
+  spendingPercentage,
+  isOverLimit,
   t,
-  formatCurrency 
+  formatCurrency
 }) => {
   const navigate = useNavigate();
 
@@ -68,7 +68,7 @@ const LimitCard = ({
         </div>
 
         {isOverLimit && (
-          <div className="flex items-center gap-1.5 animate-pulse">
+          <div className="flex items-center gap-1.5">
             <span className="text-[10px] font-bold text-red-600 dark:text-red-400 tracking-wide">
               ⚠️ {t('dashboard.over_limit')}
             </span>
