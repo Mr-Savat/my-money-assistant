@@ -10,9 +10,25 @@ import { LanguageProvider } from './context/LanguageContext';
 import AIChat from './pages/aichart/AIChat';
 import Forecast from './pages/forecast/Forecast';
 
+import { auth } from './firebase/config';
+
 const App = () => {
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
+    // Clear user session and cached data (keep theme and language preferences)
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user_data');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_image');
+    localStorage.removeItem('user_profile');
+    localStorage.removeItem('user_transactions_list');
+    localStorage.removeItem('dashboard_stats');
+    localStorage.removeItem('dashboard_chart');
+    localStorage.removeItem('forecastStorage');
     window.location.href = "/login";
   };
 
