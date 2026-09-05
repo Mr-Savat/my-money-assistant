@@ -66,10 +66,12 @@ const km = {
   "transaction.date": "កាលបរិច្ឆេទ",
   "transaction.amount": "ចំនួនទឹកប្រាក់",
   "transaction.duplicate_question": "តើអ្នកចង់បន្ថែមវាទេ?",
+  "transaction.clear_old": "លុបចាស់ៗ (< ខែ 8)",
 
   // Chart
   "chart.financial_forecast": "ការព្យាករណ៍ហិរញ្ញវត្ថុ",
-  "chart.live_storage": "ផ្សាយផ្ទាល់ពី LocalStorage",
+  "chart.live_overview": "ទិដ្ឋភាពជាក់ស្តែង",
+  "chart.live_storage": "ទិដ្ឋភាពជាក់ស្តែង",
   "chart.income": "ចំណូល",
   "chart.expense": "ចំណាយ",
   "chart.no_data": "គ្មានទិន្នន័យ",

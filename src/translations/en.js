@@ -63,11 +63,13 @@ const en = {
   "transaction.date": "Date",
   "transaction.amount": "Amount",
   "transaction.duplicate_question": "Do you want to add it anyway?",
+  "transaction.clear_old": "Clean Pre-Aug",
 
 
   // Chart
   "chart.financial_forecast": "Financial Forecast",
-  "chart.live_storage": "Live from LocalStorage",
+  "chart.live_overview": "Real-time Overview",
+  "chart.live_storage": "Real-time Overview",
   "chart.income": "Income",
   "chart.expense": "Expense",
   "chart.no_data": "No Data Available",

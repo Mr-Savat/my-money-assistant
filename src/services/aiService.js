@@ -12,7 +12,8 @@ export const askMoneyAI = async (prompt) => {
     messages: [
       { role: "system", content: "You are Money Assist AI, helpful and concise." },
       { role: "user", content: prompt }
-    ]
+    ],
+    max_tokens: 1000
   });
 
   return completion.choices[0].message.content;
