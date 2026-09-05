@@ -47,40 +47,42 @@ export const useProfile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
-    //  compress image before saving
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-  
-    img.onload = () => {
-      // resize to max 200x200
-      const maxSize = 200;
-      let width = img.width;
-      let height = img.height;
-  
-      if (width > height) {
-        if (width > maxSize) {
-          height = (height * maxSize) / width;
-          width = maxSize;
-        }
-      } else {
-        if (height > maxSize) {
-          width = (width * maxSize) / height;
-          height = maxSize;
-        }
-      }
-  
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-  
-      // compress to jpeg quality 0.7
-      const compressed = canvas.toDataURL('image/jpeg', 0.7);
-      setImagePreview(compressed);
+
+    // Read and optimize image for crystal clear high-DPI display
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 512x512 ensures crisp clarity on all Retina / 4K / mobile displays
+        const targetSize = 512;
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+
+        // Center-crop square from source photo so faces aren't squished or off-center
+        const minDimension = Math.min(img.width, img.height);
+        const sourceX = (img.width - minDimension) / 2;
+        const sourceY = (img.height - minDimension) / 2;
+
+        // Enable high-quality smoothing
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        ctx.drawImage(
+          img,
+          sourceX, sourceY, minDimension, minDimension,
+          0, 0, targetSize, targetSize
+        );
+
+        // High-quality JPEG (0.88 delivers sharp details with a compact ~60KB footprint)
+        const crispImage = canvas.toDataURL('image/jpeg', 0.88);
+        setImagePreview(crispImage);
+      };
+      img.src = event.target.result;
     };
-  
-    img.src = URL.createObjectURL(file);
+    reader.readAsDataURL(file);
   };
 
   // Save profile
