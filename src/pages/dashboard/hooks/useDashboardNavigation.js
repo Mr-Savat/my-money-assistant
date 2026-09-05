@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
-import { useCachedState } from "../../../hooks/useCachedState";
 import { auth } from "../../../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -9,8 +8,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const useDashboardNavigation = () => {
   const { t } = useTranslation();
 
-  const [userName, setUserName] = useCachedState('user_name', 'Guest');
-  const [userImage, setUserImage] = useCachedState('user_image', null);
+  const [userName, setUserName] = useState('Guest');
+  const [userImage, setUserImage] = useState(null);
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,7 +28,14 @@ export const useDashboardNavigation = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
-      if (!user) setLoading(false);
+      if (user) {
+        setUserName(user.displayName || 'Guest');
+        setUserImage(user.photoURL || null);
+      } else {
+        setUserName('Guest');
+        setUserImage(null);
+        setLoading(false);
+      }
     });
     return () => unsubscribe();
   }, []);

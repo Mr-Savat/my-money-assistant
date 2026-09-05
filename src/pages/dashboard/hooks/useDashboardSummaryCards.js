@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { useAnimatedNumber } from "./useAnimatedNumber";
-import { useCachedState } from "../../../hooks/useCachedState";
 import { auth } from "../../../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -10,14 +9,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const useDashboardSummaryCards = () => {
   const { t } = useTranslation();
 
-  //  ប្រើ useCachedState ជំនួស useState 
-  const [stats, setStats] = useCachedState('dashboard_stats', {
+  // Live React state backed by backend Firestore
+  const [stats, setStats] = useState({
     balance: 0,
     income: 0,
     expense: 0
   });
 
-  const [userData, setUserData] = useCachedState('user_profile', {
+  const [userData, setUserData] = useState({
     spendingLimit: 0,
     monthlySalary: 0
   });

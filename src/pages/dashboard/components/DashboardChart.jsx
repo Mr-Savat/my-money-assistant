@@ -5,14 +5,14 @@ function DashboardChart() {
     const { t, hasData, chartData, formatDate, formatMoney} = useDashboardChart();
 
   return (
-    <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-4 sm:p-5 md:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
+    <div className="h-full bg-white dark:bg-gray-800 p-4 sm:p-5 md:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300 flex flex-col justify-between">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 lg:mb-8">
         <div>
           <h3 className="text-base sm:text-lg lg:text-xl font-black tracking-tight text-gray-900 dark:text-white">
             {t('chart.financial_forecast')}
           </h3>
           <p className="text-[8px] sm:text-[9px] lg:text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-0.5 sm:mt-1 tracking-widest">
-            {t('chart.live_storage')}
+            {t('chart.live_overview')}
           </p>
         </div>
         <div className="flex gap-2 sm:gap-3 lg:gap-4">
@@ -51,7 +51,7 @@ function DashboardChart() {
           </div>
         )}
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <AreaChart data={chartData} style={{ outline: 'none' }} accessibilityLayer={false} margin={{
             top: 20,
             right: 15,

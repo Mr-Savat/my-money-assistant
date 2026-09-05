@@ -16,13 +16,15 @@ function DashboardTransactions() {
         isModalOpen,
         setIsModalOpen,
         deleteTransaction,
+        cleanupOldTransactions,
+        hasOldTransactions,
         handleAdd,
         displayedData,
         sortedFiltered
     } = useDashboardTransaction();
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 md:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col relative w-full transition-colors duration-300">
+        <div className="h-full bg-white dark:bg-gray-800 p-4 sm:p-5 md:p-6 lg:p-8 rounded-2xl sm:rounded-3xl lg:rounded-4xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col justify-between relative w-full transition-colors duration-300">
             {/* Header */}
             <div className="flex justify-between sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8">
                 <div>
@@ -30,11 +32,20 @@ function DashboardTransactions() {
                         {t('transactions')}
                     </h3>
                     <p className="text-[8px] sm:text-[9px] lg:text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-0.5 sm:mt-1 tracking-widest">
-                        {t('lastAndCurrentMonth')}
+                        {t('transactions')}
                     </p>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2">
-                    {sortedFiltered.length >= 4 && (
+                    {hasOldTransactions && (
+                        <button
+                            onClick={cleanupOldTransactions}
+                            title="Delete transactions before August 2026"
+                            className="text-red-500 dark:text-red-400 text-[8px] sm:text-[9px] lg:text-[10px] cursor-pointer font-black hover:bg-red-50 dark:hover:bg-red-900/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition-all tracking-widest uppercase whitespace-nowrap border border-red-200 dark:border-red-800"
+                        >
+                            {t('transaction.clear_old') || 'Clean Pre-Aug'}
+                        </button>
+                    )}
+                    {sortedFiltered.length > 5 && (
                         <button
                             onClick={() => setShowAll(!showAll)}
                             className="text-indigo-600 dark:text-indigo-400 text-[8px] sm:text-[9px] lg:text-[10px] cursor-pointer font-black hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all tracking-widest uppercase whitespace-nowrap"

@@ -13,7 +13,7 @@ export const useCategoryManager = (categories, setCategories, formData, setFormD
   // ++++++ ទាញយក Token ++++++
   const getToken = async () => {
     const user = auth.currentUser;
-    if (!user) throw new Error('No user logged in');
+    if (!user) return null;
     return await user.getIdToken();
   };
 
@@ -24,6 +24,11 @@ export const useCategoryManager = (categories, setCategories, formData, setFormD
     try {
       const token = await getToken();
       
+      if (!token) {
+        alert('Please log in to add categories.');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/api/categories`, {
         method: 'POST',
         headers: {
@@ -41,11 +46,11 @@ export const useCategoryManager = (categories, setCategories, formData, setFormD
         setNewCat("");
         setIsAddingNew(false);
       } else {
-        alert('Failed to add category');
+        alert(`Failed to add category: ${data.error || 'Server error'}`);
       }
     } catch (err) {
       console.error('Error adding category:', err);
-      alert('Connection error');
+      alert(`Connection error: ${err.message || 'Failed to connect to server'}`);
     }
   };
 

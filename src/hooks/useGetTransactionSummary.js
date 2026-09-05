@@ -1,36 +1,46 @@
 import { useState, useEffect } from 'react';
+import { auth } from '../firebase/config';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const useGetTransactionSummary = () => {
   const [transactions, setTransactions] = useState([]);
   const [userData, setUserData] = useState(null);
 
-  const loadTransactionData = () => {
-    // យក User Data
+  const loadTransactionData = async () => {
+    // User profile from localStorage
     const savedUser = localStorage.getItem('user_data');
     if (savedUser) {
       setUserData(JSON.parse(savedUser));
     }
 
-    // យក Transaction Data
-    const saved = localStorage.getItem('user_transactions_list');
-    if (saved) {
-      setTransactions(JSON.parse(saved));
-    } else {
-      setTransactions([]);
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        if (token) {
+          const response = await fetch(`${API_URL}/api/transactions`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await response.json();
+          if (data.success && data.transactions) {
+            setTransactions(data.transactions);
+            return;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch backend transactions for summary:', err);
     }
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTransactionData();
 
-    // ស្តាប់ការផ្លាស់ប្តូរ
-    window.addEventListener('storage', loadTransactionData);
-    const interval = setInterval(loadTransactionData, 3000);
+    window.addEventListener('transactions-updated', loadTransactionData);
 
     return () => {
-      window.removeEventListener('storage', loadTransactionData);
-      clearInterval(interval);
+      window.removeEventListener('transactions-updated', loadTransactionData);
     };
   }, []);
 

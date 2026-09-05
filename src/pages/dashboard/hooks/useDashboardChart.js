@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
-import { useCachedState } from "../../../hooks/useCachedState";
 import { auth } from "../../../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -8,8 +7,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const useDashboardChart = () => {
   const { t } = useTranslation();
-  //  ប្រើ useCachedState ជំនួស useState 
-  const [chartData, setChartData] = useCachedState('dashboard_chart', []);
+  // Live React state backed by backend Firestore
+  const [chartData, setChartData] = useState([]);
   const hasData = chartData.length > 0;
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,6 +34,7 @@ export const useDashboardChart = () => {
 
     try {
       const token = await getToken();
+      if (!token) return;
       const response = await fetch(`${API_URL}/api/dashboard/daily`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
-import { useCachedState } from "../../../hooks/useCachedState";
 import { auth } from "../../../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -9,10 +8,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const useDashboardTransaction = () => {
     const { t } = useTranslation();
     
-    //  ប្រើ useCachedState ជំនួស useState 
-    const [transactions, setTransactions] = useCachedState('user_transactions_list', []);
-    const [categories, setCategories] = useCachedState('categories', ["Food", "Lunch", "Dinner"]);
-    const [userData, setUserData] = useCachedState('user_profile', { spendingLimit: 0 });
+    // Live React state backed by backend Firestore
+    const [transactions, setTransactions] = useState([]);
+    const [categories, setCategories] = useState(["Food", "Lunch", "Dinner"]);
+    const [userData, setUserData] = useState({ spendingLimit: 0 });
     
     const [showLimitWarning, setShowLimitWarning] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -49,6 +48,7 @@ export const useDashboardTransaction = () => {
 
         try {
             const token = await getToken();
+            if (!token) return;
             const response = await fetch(`${API_URL}/api/transactions`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -72,6 +72,7 @@ export const useDashboardTransaction = () => {
         
         try {
             const token = await getToken();
+            if (!token) return;
             const response = await fetch(`${API_URL}/api/categories`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -89,6 +90,7 @@ export const useDashboardTransaction = () => {
         
         try {
             const token = await getToken();
+            if (!token) return;
             const response = await fetch(`${API_URL}/api/users/profile`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -111,6 +113,19 @@ export const useDashboardTransaction = () => {
                 fetchUserData()
             ]).finally(() => setLoading(false));
         }
+
+        const handleRefresh = () => {
+            fetchTransactions();
+        };
+
+        // Poll every 30 seconds to keep in sync with summary cards and chart
+        const interval = setInterval(fetchTransactions, 30000);
+
+        window.addEventListener('transactions-updated', handleRefresh);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('transactions-updated', handleRefresh);
+        };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated]);
 
@@ -119,18 +134,30 @@ export const useDashboardTransaction = () => {
 
         try {
             const token = await getToken();
+            if (!token) {
+                alert('Please log in to delete transactions.');
+                return;
+            }
+            console.log('Attempting to delete transaction with ID:', id);
+            
             const response = await fetch(`${API_URL}/api/transactions/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            
+            console.log('Delete response status:', response.status);
             const data = await response.json();
+            console.log('Delete response data:', data);
 
             if (data.success) {
                 setTransactions(transactions.filter(t => t.id !== id));
                 window.dispatchEvent(new CustomEvent('transactions-updated'));
+            } else {
+                alert(`Delete failed: ${data.error || 'Server returned success: false'}`);
             }
         } catch (err) {
             console.error('Error deleting transaction:', err);
+            alert(`Error: ${err.message}`);
         }
     };
 
@@ -138,10 +165,10 @@ export const useDashboardTransaction = () => {
         e.preventDefault();
 
         const newTransaction = {
-            date: formData.date,
+            date: formData.date || new Date().toISOString().split('T')[0],
             description: formData.description.trim(),
             amount: parseFloat(formData.amount) * (formData.type === 'expense' ? -1 : 1),
-            category: formData.category
+            category: formData.category ? formData.category.trim() : 'Other'
         };
 
         // ពិនិត្យ Duplicate
@@ -167,6 +194,10 @@ export const useDashboardTransaction = () => {
 
         try {
             const token = await getToken();
+            if (!token) {
+                alert('Please log in to add transactions.');
+                return;
+            }
             const response = await fetch(`${API_URL}/api/transactions`, {
                 method: 'POST',
                 headers: {
@@ -179,10 +210,16 @@ export const useDashboardTransaction = () => {
             const data = await response.json();
 
             if (data.success) {
-                setTransactions([data.transaction, ...transactions]);
+                setTransactions(prev => [data.transaction, ...prev]);
                 window.dispatchEvent(new CustomEvent('transactions-updated'));
                 setIsModalOpen(false);
-                setFormData({ ...formData, description: '', amount: '' });
+                setFormData({
+                    date: new Date().toISOString().split('T')[0],
+                    description: '',
+                    amount: '',
+                    type: 'expense',
+                    category: ''
+                });
 
                 // ពិនិត្យ Spending Limit
                 if (formData.type === 'expense') {
@@ -203,39 +240,50 @@ export const useDashboardTransaction = () => {
                         }
                     }
                 }
+            } else {
+                alert(`Could not add transaction: ${data.error || 'Server error'}`);
             }
         } catch (err) {
             console.error('Error adding transaction:', err);
+            alert(`Error adding transaction: ${err.message}`);
         }
     };
 
-    const getRecentMonthsTransactions = () => {
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        const currentMonth = currentDate.getMonth();
+    const cleanupOldTransactions = async () => {
+        if (!window.confirm('Do you want to delete all old template transactions before August 2026 (Month 8)?')) return;
 
-        let lastMonth = currentMonth - 1;
-        let lastMonthYear = currentYear;
+        try {
+            const token = await getToken();
+            if (!token) return;
 
-        if (lastMonth < 0) {
-            lastMonth = 11;
-            lastMonthYear = currentYear - 1;
+            const response = await fetch(`${API_URL}/api/transactions/cleanup/old?beforeDate=2026-08-01`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert(`Cleaned up ${data.deletedCount} old transaction(s).`);
+                await fetchTransactions();
+                window.dispatchEvent(new CustomEvent('transactions-updated'));
+            } else {
+                alert(`Cleanup failed: ${data.error || 'Unknown error'}`);
+            }
+        } catch (err) {
+            console.error('Error cleaning up old transactions:', err);
+            alert(`Error: ${err.message}`);
         }
-
-        return transactions.filter(t => {
-            const transDate = new Date(t.date);
-            const transYear = transDate.getFullYear();
-            const transMonth = transDate.getMonth();
-            return (transYear === currentYear && transMonth === currentMonth) ||
-                (transYear === lastMonthYear && transMonth === lastMonth);
-        });
     };
 
-    const filteredTransactions = getRecentMonthsTransactions();
-    const sortedFiltered = [...filteredTransactions].sort((a, b) =>
+    const hasOldTransactions = transactions.some(t => {
+        const d = t.date ? String(t.date).split('T')[0] : '';
+        return d && d < '2026-08-01';
+    });
+
+    const sortedAll = [...transactions].sort((a, b) =>
         new Date(b.date) - new Date(a.date)
     );
-    const displayedData = showAll ? sortedFiltered : sortedFiltered.slice(0, 5);
+    const displayedData = showAll ? sortedAll : sortedAll.slice(0, 5);
 
     return {
         t,
@@ -245,10 +293,13 @@ export const useDashboardTransaction = () => {
         isModalOpen,
         setIsModalOpen,
         deleteTransaction,
+        cleanupOldTransactions,
+        hasOldTransactions,
         handleAdd,
         displayedData,
-        sortedFiltered,
+        sortedFiltered: sortedAll,
         showAll,
+        totalCount: transactions.length,
         formData,
         setFormData,
         categories,
