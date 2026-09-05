@@ -35,8 +35,8 @@ const Forecast = () => {
   
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-white dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full min-h-full p-4 sm:p-6 lg:p-8 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
+      <div className="w-full">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 lg:mb-10">
           <div>
@@ -185,6 +185,8 @@ const Forecast = () => {
           <div className="lg:col-span-1 h-full min-h-75 sm:min-h-87.5 lg:min-h-100">
             <PieSection
               transactions={transactions}
+              forecast={forecast}
+              chartData={chartData}
               COLORS={COLORS}
               formatCurrency={formatCurrency}
             />

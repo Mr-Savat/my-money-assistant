@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../../../hooks/useTranslation";
-import { saveTransactions, parseUploadedFile, downloadTemplate } from '../../../utils/transactionUtils';
+import { saveTransactions, parseUploadedFile, downloadTemplate, extractCategoryBreakdown } from '../../../utils/transactionUtils';
 import { auth } from "../../../firebase/config";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -36,48 +36,75 @@ export const useForecast = () => {
     };
 
     useEffect(() => {
+        // Clean up any stale localStorage leftover from legacy versions
+        localStorage.removeItem('user_transactions_list');
+
         const savedData = localStorage.getItem('forecastStorage');
         if (savedData) {
-            const parsed = JSON.parse(savedData);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setChartData(parsed.chartData || []);
-            setForecast(parsed.forecast || null);
+            try {
+                const parsed = JSON.parse(savedData);
+                let savedForecast = parsed.forecast || null;
+                const savedChart = parsed.chartData || [];
+
+                // Backfill categoryBreakdown if missing from saved forecast
+                if (savedForecast && (!savedForecast.categoryBreakdown || savedForecast.categoryBreakdown.length === 0) && savedChart.length > 0) {
+                    const actualMonths = savedChart.filter(d => !d.isForecast);
+                    const lastActual = actualMonths[actualMonths.length - 1];
+                    if (lastActual) {
+                        savedForecast = {
+                            ...savedForecast,
+                            categoryBreakdown: extractCategoryBreakdown(lastActual)
+                        };
+                    }
+                }
+
+                setChartData(savedChart);
+                setForecast(savedForecast);
+            } catch (err) {
+                console.error("Failed to parse forecastStorage", err);
+            }
         }
 
-        const loadTransactions = () => {
-            const savedTransactions = localStorage.getItem('user_transactions_list');
-            if (savedTransactions) {
-                setTransactions(JSON.parse(savedTransactions));
+        const loadTransactions = async () => {
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    const token = await user.getIdToken();
+                    if (token) {
+                        const response = await fetch(`${API_URL}/api/transactions`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await response.json();
+                        if (data.success && data.transactions) {
+                            setTransactions(data.transactions);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not fetch backend transactions for forecast:', err);
             }
         };
 
         loadTransactions();
-        window.addEventListener('storage', loadTransactions);
+        window.addEventListener('transactions-updated', loadTransactions);
 
         return () => {
-            window.removeEventListener('storage', loadTransactions);
+            window.removeEventListener('transactions-updated', loadTransactions);
         };
     }, []);
 
     // Function រក Top Category
     const getTopCategory = (monthData) => {
-        const categories = [
-            { name: 'Food', amount: monthData.food || 0 },
-            { name: 'Transport', amount: monthData.transport || 0 },
-            { name: 'Shopping', amount: monthData.shopping || 0 },
-            { name: 'Other', amount: monthData.other || 0 }
-        ];
+        const categories = extractCategoryBreakdown(monthData);
+        if (!categories || categories.length === 0) return null;
 
-        const top = categories.reduce((max, cat) => cat.amount > max.amount ? cat : max);
-
-        if (top.amount === 0) return null;
-
-        const total = categories.reduce((sum, cat) => sum + cat.amount, 0);
+        const top = categories[0];
+        const total = categories.reduce((sum, cat) => sum + cat.value, 0);
 
         return {
             name: top.name,
-            amount: top.amount,
-            percentage: Math.round((top.amount / total) * 100)
+            amount: top.value,
+            percentage: total > 0 ? Math.round((top.value / total) * 100) : 0
         };
     };
 
@@ -128,28 +155,43 @@ export const useForecast = () => {
     const syncUploadToBackend = async (dataToSync) => {
         try {
             const user = auth.currentUser;
-            if (!user) return;
+            if (!user) {
+                alert('Please log in first to sync transactions to your account.');
+                return;
+            }
             const token = await user.getIdToken();
-            const uploadPromises = dataToSync.map(txn =>
-                fetch(`${API_URL}/api/transactions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        date: txn.date,
-                        description: txn.description,
-                        amount: txn.amount,
-                        category: txn.category || 'Uncategorized'
-                    })
-                })
-            );
+            const formattedList = dataToSync.map((rawTxn) => {
+                const date = rawTxn.date || rawTxn.Date || new Date().toISOString().split('T')[0];
+                const description = rawTxn.description || rawTxn.Description || 'Transaction';
+                const amount = rawTxn.amount !== undefined ? rawTxn.amount : (rawTxn.Amount || 0);
+                const category = rawTxn.category || rawTxn.Category || 'Other';
+                return {
+                    date: String(date).split('T')[0],
+                    description: String(description).trim(),
+                    amount: parseFloat(amount) || 0,
+                    category: String(category).trim()
+                };
+            });
 
-            await Promise.all(uploadPromises);
+            // Fast single-request batch upload
+            const response = await fetch(`${API_URL}/api/transactions/batch`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ transactions: formattedList })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || 'Failed to upload batch transactions');
+            }
+
             window.dispatchEvent(new CustomEvent('transactions-updated'));
         } catch (err) {
             console.error("Failed to sync uploads to database:", err);
+            alert(`Error uploading transactions: ${err.message}`);
         }
     };
 
@@ -166,6 +208,7 @@ export const useForecast = () => {
             case 'dashboard':
             case 'both':
                 saveTransactions(data, {
+                    existingTransactions: transactions,
                     onDuplicate: (duplicates, unique, onAddAll, onSkip) => {
                         setDuplicateInfo({ duplicates, totalCount: data.length });
                         setUploadData({
@@ -173,16 +216,16 @@ export const useForecast = () => {
                                 onAddAll();
                                 // SYNC ALL TO BACKEND
                                 await syncUploadToBackend(data);
-                                const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
-                                setTransactions(updated);
+                                if (option === 'both') processForecastingFromTransactions(data);
+                                setTransactions(prev => [...data, ...prev]);
                                 alert(t('upload.added_dashboard', { count: data.length }));
                             },
                             onSkip: async () => {
                                 onSkip();
                                 // SYNC ONLY UNIQUE TO BACKEND
                                 await syncUploadToBackend(unique);
-                                const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
-                                setTransactions(updated);
+                                if (option === 'both') processForecastingFromTransactions(unique);
+                                setTransactions(prev => [...unique, ...prev]);
                                 alert(t('upload.added_skipped', { added: unique.length, skipped: duplicates.length }));
                             }
                         });
@@ -194,8 +237,7 @@ export const useForecast = () => {
 
                         if (option === 'both') processForecastingFromTransactions(data);
 
-                        const updated = JSON.parse(localStorage.getItem('user_transactions_list') || '[]');
-                        setTransactions(updated);
+                        setTransactions(prev => [...saved, ...prev]);
                         alert(`✅ Added ${saved.length} transactions to Dashboard & Database`);
                     }
                 });
@@ -263,10 +305,24 @@ export const useForecast = () => {
             return;
         }
 
-        const processed = rawData.map(row => ({
-            ...row,
-            actualValue: (row.food || 0) + (row.transport || 0) + (row.shopping || 0) + (row.other || 0),
-        }));
+        const ignoredKeys = new Set([
+            'month', 'year', 'total', 'actualvalue', 'actualdisplay',
+            'predicteddisplay', 'isforecast', 'date', 'amount', 'description', 'category'
+        ]);
+
+        const processed = rawData.map(row => {
+            let actualValue = 0;
+            Object.entries(row).forEach(([k, v]) => {
+                if (!ignoredKeys.has(k.toLowerCase()) && typeof v === 'number') {
+                    actualValue += v;
+                }
+            });
+            if (actualValue === 0 && row.total) actualValue = row.total;
+            return {
+                ...row,
+                actualValue
+            };
+        });
 
         const last = processed[processed.length - 1];
         const prev = processed[processed.length - 2];
@@ -299,7 +355,8 @@ export const useForecast = () => {
             lastMonth: last.month,
             lastValue: last.actualValue,
             trend: Math.round(trend),
-            topCategory: getTopCategory(last)
+            topCategory: getTopCategory(last),
+            categoryBreakdown: extractCategoryBreakdown(last)
         };
 
         setChartData(finalChartData);

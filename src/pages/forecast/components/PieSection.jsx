@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { PieChart as PieIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, Sector } from 'recharts';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { extractCategoryBreakdown } from '../../../utils/transactionUtils';
 
 //  Improved Tooltip UI 
 const CustomTooltip = ({ active, payload }) => {
@@ -55,52 +57,105 @@ const renderActiveShape = (props) => {
     );
 };
 
-const PieSection = ({ transactions, COLORS, formatCurrency }) => {
+const PieSection = ({ transactions, forecast, chartData, COLORS, formatCurrency }) => {
     const { t } = useTranslation();
-    // Logic remains exactly as you wrote it
-    const calculateCategoryTotals = () => {
-        if (!transactions || transactions.length === 0) return [];
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        const currentMonth = currentDate.getMonth();
 
-        const currentMonthExpenses = transactions.filter(t => {
-            const transDate = new Date(t.date);
-            return transDate.getFullYear() === currentYear &&
-                transDate.getMonth() === currentMonth &&
-                parseFloat(t.amount) < 0;
-        });
-
-        const categoryMap = currentMonthExpenses.reduce((acc, curr) => {
-            const category = curr.category || 'Other';
-            const amount = Math.abs(parseFloat(curr.amount));
-            acc[category] = (acc[category] || 0) + amount;
-            return acc;
-        }, {});
-
-        const sorted = Object.entries(categoryMap)
-            .map(([name, value]) => ({ name, value }))
-            .sort((a, b) => b.value - a.value);
-
-        const MAX_CATEGORIES = 5;
-        if (sorted.length <= MAX_CATEGORIES) {
-            return sorted;
-        } else {
-            const top4 = sorted.slice(0, 4);
-            const otherItems = sorted.slice(4);
-            const otherTotal = otherItems.reduce((sum, item) => sum + item.value, 0);
-            return [
-                ...top4,
-                {
-                    name: `Other (${otherItems.length})`,
-                    value: otherTotal,
-                    originalItems: otherItems
-                }
-            ];
+    const { data, monthLabel } = useMemo(() => {
+        // Priority 1: Use categoryBreakdown from forecast if available
+        if (forecast?.categoryBreakdown && forecast.categoryBreakdown.length > 0) {
+            return {
+                data: forecast.categoryBreakdown,
+                monthLabel: forecast.lastMonth || t('pie.this_month')
+            };
         }
-    };
 
-    const data = calculateCategoryTotals();
+        // Priority 2: Extract from chartData (last actual month before forecast)
+        if (chartData && chartData.length > 0) {
+            const actualRows = chartData.filter(d => !d.isForecast);
+            if (actualRows.length > 0) {
+                const lastActual = actualRows[actualRows.length - 1];
+                const breakdown = extractCategoryBreakdown(lastActual);
+                if (breakdown.length > 0) {
+                    return {
+                        data: breakdown,
+                        monthLabel: lastActual.month || forecast?.lastMonth || t('pie.this_month')
+                    };
+                }
+            }
+        }
+
+        // Priority 3: Calculate from individual transactions
+        if (transactions && transactions.length > 0) {
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+
+            // First try current month expenses
+            let targetExpenses = transactions.filter(tr => {
+                const transDate = new Date(tr.date);
+                return transDate.getFullYear() === currentYear &&
+                    transDate.getMonth() === currentMonth &&
+                    parseFloat(tr.amount) < 0;
+            });
+
+            let label = t('pie.this_month');
+
+            // If no expenses in current month, fallback to most recent month with expenses
+            if (targetExpenses.length === 0) {
+                const allExpenses = transactions.filter(tr => parseFloat(tr.amount) < 0);
+                if (allExpenses.length > 0) {
+                    allExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const latestDate = new Date(allExpenses[0].date);
+                    const lYear = latestDate.getFullYear();
+                    const lMonth = latestDate.getMonth();
+                    targetExpenses = allExpenses.filter(tr => {
+                        const d = new Date(tr.date);
+                        return d.getFullYear() === lYear && d.getMonth() === lMonth;
+                    });
+                    label = latestDate.toLocaleString('default', { month: 'short' });
+                }
+            }
+
+            if (targetExpenses.length > 0) {
+                const categoryMap = targetExpenses.reduce((acc, curr) => {
+                    const category = curr.category || 'Other';
+                    const amount = Math.abs(parseFloat(curr.amount));
+                    acc[category] = (acc[category] || 0) + amount;
+                    return acc;
+                }, {});
+
+                const sorted = Object.entries(categoryMap)
+                    .map(([name, value]) => ({ name, value }))
+                    .sort((a, b) => b.value - a.value);
+
+                const MAX_CATEGORIES = 5;
+                let formattedData;
+                if (sorted.length <= MAX_CATEGORIES) {
+                    formattedData = sorted;
+                } else {
+                    const top4 = sorted.slice(0, 4);
+                    const otherItems = sorted.slice(4);
+                    const otherTotal = otherItems.reduce((sum, item) => sum + item.value, 0);
+                    formattedData = [
+                        ...top4,
+                        {
+                            name: `Other (${otherItems.length})`,
+                            value: otherTotal,
+                            originalItems: otherItems
+                        }
+                    ];
+                }
+
+                return {
+                    data: formattedData,
+                    monthLabel: label
+                };
+            }
+        }
+
+        return { data: [], monthLabel: t('pie.this_month') };
+    }, [transactions, forecast, chartData, t]);
+
     const hasData = data.length > 0;
 
     return (
@@ -108,7 +163,7 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
             <h3 className="font-bold text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 lg:mb-8 flex flex-wrap justify-center items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <PieIcon size={14} className="sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5 text-indigo-500 dark:text-indigo-400" />
                 <span>{t('pie.category_breakdown')}</span>
-                {hasData && <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-500 font-normal ml-1 tracking-tight">({t('pie.this_month')})</span>}
+                {hasData && <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-500 font-normal ml-1 tracking-tight">({monthLabel})</span>}
             </h3>
 
             <div className="h-48 sm:h-56 lg:h-64 flex-1 relative">
@@ -118,7 +173,7 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
                     </div>
                 )}
 
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                         <Pie
                             data={hasData ? data : [{ name: 'Empty', value: 1 }]}
@@ -135,7 +190,7 @@ const PieSection = ({ transactions, COLORS, formatCurrency }) => {
                                 data.map((entry, index) => (
                                     <Cell
                                         key={`cell-${index}`}
-                                        fill={COLORS.pie[index % COLORS.pie.length]}
+                                        fill={(COLORS?.pie || ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'])[index % (COLORS?.pie?.length || 6)]}
                                         className="outline-none"
                                     />
                                 ))
