@@ -21,8 +21,8 @@ const BlockchainView = () => {
   ];
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-gray-50/50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 text-slate-900 dark:text-gray-200 transition-colors">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-500">
+    <div className="w-full min-h-full bg-gray-50/50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 text-slate-900 dark:text-gray-200 transition-colors">
+      <div className="w-full space-y-6 sm:space-y-8 animate-in fade-in duration-500">
         
       {/* Header - Responsive */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">

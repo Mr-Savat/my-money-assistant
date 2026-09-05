@@ -6,8 +6,8 @@ import DashboardTransactions from './components/DashboardTransactions';
 
 function Dashboard() {
   return (
-    <div className="overflow-y-auto bg-[#F8FAFC] dark:bg-gray-900 p-4 md:p-8 text-[#1E293B] dark:text-gray-100 font-sans transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full min-h-full bg-[#F8FAFC] dark:bg-gray-900 p-4 sm:p-6 lg:p-8 text-[#1E293B] dark:text-gray-100 font-sans transition-colors duration-300">
+      <div className="w-full">
 
         <DashboardNavigation />
 
