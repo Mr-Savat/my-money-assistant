@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import DotField from './DotField';
 import { auth } from '../firebase/config';
 import {
   createUserWithEmailAndPassword,
@@ -99,6 +100,7 @@ console.log("TEST THIS TOKEN:", idToken); // Add this line
       case 'auth/wrong-password': setError(t('auth.invalid_credentials')); break;
       case 'auth/popup-closed-by-user': setError("ការ Login ត្រូវបានបោះបង់ (Popup ត្រូវបានបិទ)។"); break;
       case 'auth/cancelled-popup-request': setError("មានបញ្ហាជាន់គ្នា ពេលកំពុងបើកផ្ទាំង Login។"); break;
+      case 'auth/unauthorized-domain': setError("Domain នេះមិនទាន់ត្រូវបាន Add ទៅក្នុង Firebase Authorized Domains ទេ។ សូមចូលទៅ Firebase Console ដើម្បី Add Domain។"); break;
       default: setError(t('auth.unknown_error'));
     }
   };
@@ -145,8 +147,30 @@ console.log("TEST THIS TOKEN:", idToken); // Add this line
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-indigo-900 dark:bg-gray-900 px-4 transition-colors duration-300">
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 transition-colors duration-300">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-slate-950 px-4 py-8">
+      {/* Background Animated Dot Field */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <DotField
+          dotRadius={1.5}
+          dotSpacing={16}
+          cursorRadius={400}
+          cursorForce={0.12}
+          bulgeStrength={60}
+          sparkle={true}
+          waveAmplitude={2}
+          gradientFrom="rgba(99, 102, 241, 0.45)"
+          gradientTo="rgba(168, 85, 247, 0.3)"
+          glowColor="rgba(99, 102, 241, 0.2)"
+          glowRadius={200}
+        />
+      </div>
+
+      {/* Subtle ambient glows for visual depth */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Auth Card */}
+      <div className="relative z-10 max-w-md w-full bg-white/95 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/60 p-8 transition-colors duration-300">
         <h2 className="text-2xl font-bold text-center text-indigo-900 dark:text-indigo-400 mb-6">
           {mode === 'login' ? t('auth.welcome') : t('auth.create_account')}
         </h2>
