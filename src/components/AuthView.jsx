@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { Loader } from 'lucide-react';
@@ -10,6 +10,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   sendEmailVerification,
   updateProfile
@@ -26,6 +28,48 @@ const AuthView = ({ mode }) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // ពិនិត្យលទ្ធផល Redirect Sign-In (សម្រាប់ Browser ដែល Block Popup ឬ COOP)
+  useEffect(() => {
+    let isMounted = true;
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user && isMounted) {
+          setLoading(true);
+          const user = result.user;
+          const idToken = await user.getIdToken();
+
+          const response = await fetch(`${API_URL}/api/auth/verify-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem('user_data', JSON.stringify(data.user));
+            localStorage.setItem('isAuthenticated', 'true');
+            navigate('/');
+          } else {
+            setError(t('auth.login_failed'));
+          }
+        }
+      } catch (err) {
+        console.error('Redirect Sign-In error:', err);
+        if (isMounted) handleFirebaseError(err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    checkRedirect();
+    return () => {
+      isMounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,8 +109,7 @@ const AuthView = ({ mode }) => {
           return;
         }
 
-        const idToken = await user.getIdToken();
-console.log("TEST THIS TOKEN:", idToken); // Add this line
+        const idToken = await user.getIdToken(true);
         const response = await fetch(`${API_URL}/api/auth/verify-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -105,20 +148,19 @@ console.log("TEST THIS TOKEN:", idToken); // Add this line
     }
   };
 
-  // ការកែសម្រួល handleGoogleSignIn ថ្មី
+  // ការកែសម្រួល handleGoogleSignIn ថ្មីជាមួយ Popup និង Redirect Fallback
   const handleGoogleSignIn = async () => {
     if (loading) return;
     setLoading(true);
     setError('');
 
-    try {
-      const provider = new GoogleAuthProvider();
-      
-      // បន្ថែមនេះដើម្បីឱ្យ Google បង្ហាញផ្ទាំងជ្រើសរើស Account និងការពារការបិទ Popup ដោយគ្មានមូលហេតុ
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
 
+    try {
+      // 1. សាកល្បង Login តាម Popup
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const idToken = await user.getIdToken();
@@ -138,9 +180,26 @@ console.log("TEST THIS TOKEN:", idToken); // Add this line
       } else {
         setError(t('auth.login_failed'));
       }
-    } catch (error) {
-      console.error('Google Sign-In error:', error);
-      handleFirebaseError(error);
+    } catch (popupError) {
+      console.warn('Popup attempt failed, checking fallback...', popupError);
+
+      // 2. ប្រសិនបើ Browser Block Popup ឬ Cross-Origin-Opener-Policy រារាំង វានឹង Switch ទៅ Redirect ដោយស្វ័យប្រវត្តិ
+      if (
+        popupError.code === 'auth/popup-closed-by-user' ||
+        popupError.code === 'auth/cancelled-popup-request' ||
+        popupError.code === 'auth/popup-blocked' ||
+        popupError.message?.includes('Cross-Origin-Opener-Policy')
+      ) {
+        try {
+          await signInWithRedirect(auth, provider);
+          return; // Browser នឹងរត់ទៅផ្ទាំង Google Login ផ្ទាល់
+        } catch (redirectError) {
+          console.error('Redirect sign-in error:', redirectError);
+          handleFirebaseError(redirectError);
+        }
+      } else {
+        handleFirebaseError(popupError);
+      }
     } finally {
       setLoading(false);
     }
