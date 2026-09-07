@@ -163,17 +163,19 @@ export const useForecast = () => {
             const formattedList = dataToSync.map((rawTxn) => {
                 const date = rawTxn.date || rawTxn.Date || new Date().toISOString().split('T')[0];
                 const description = rawTxn.description || rawTxn.Description || 'Transaction';
-                const amount = rawTxn.amount !== undefined ? rawTxn.amount : (rawTxn.Amount || 0);
+                const rawAmount = rawTxn.amount !== undefined ? rawTxn.amount : (rawTxn.Amount || 0);
+                const cleanAmountStr = String(rawAmount).replace(/[^0-9.-]/g, '');
+                const amount = parseFloat(cleanAmountStr);
                 const category = rawTxn.category || rawTxn.Category || 'Other';
                 return {
                     date: String(date).split('T')[0],
                     description: String(description).trim(),
-                    amount: parseFloat(amount) || 0,
+                    amount: isNaN(amount) ? 0 : amount,
                     category: String(category).trim()
                 };
             });
 
-            // Fast single-request batch upload
+            // Try fast single-request batch upload first
             const response = await fetch(`${API_URL}/api/transactions/batch`, {
                 method: 'POST',
                 headers: {
@@ -183,12 +185,31 @@ export const useForecast = () => {
                 body: JSON.stringify({ transactions: formattedList })
             });
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error || 'Failed to upload batch transactions');
+            if (response.ok) {
+                window.dispatchEvent(new CustomEvent('transactions-updated'));
+                return;
             }
 
-            window.dispatchEvent(new CustomEvent('transactions-updated'));
+            // Fallback: If deployed backend does not have /batch yet (404), fall back to parallel single uploads
+            if (response.status === 404) {
+                console.warn("Backend /batch endpoint returned 404. Falling back to parallel single uploads.");
+                const uploadPromises = formattedList.map(item =>
+                    fetch(`${API_URL}/api/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(item)
+                    })
+                );
+                await Promise.all(uploadPromises);
+                window.dispatchEvent(new CustomEvent('transactions-updated'));
+                return;
+            }
+
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Server responded with status ${response.status}`);
         } catch (err) {
             console.error("Failed to sync uploads to database:", err);
             alert(`Error uploading transactions: ${err.message}`);
