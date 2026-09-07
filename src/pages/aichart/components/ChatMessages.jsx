@@ -70,10 +70,10 @@ const ChatMessages = ({ messages, loading }) => {
                   >
                     {isAi ? (
                       isWaitingFirstToken ? (
-                        <div className="flex items-center gap-1.5 py-1 px-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce [animation-delay:-0.3s]"></span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce [animation-delay:-0.15s]"></span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce"></span>
+                        <div className="flex items-center gap-2 py-1.5 px-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-bounce [animation-delay:-0.3s]"></span>
+                          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-bounce [animation-delay:-0.15s]"></span>
+                          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-bounce"></span>
                         </div>
                       ) : (
                         <div className={`prose dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed ${

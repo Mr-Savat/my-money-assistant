@@ -1,27 +1,28 @@
-const apiKey = import.meta.env.VITE_OPENROUTER_KEY;
+const getApiKey = () => import.meta.env.VITE_OPENROUTER_KEY;
 
-export const DEFAULT_MODEL = "deepseek/deepseek-chat";
+// Ultra-fast responsive models verified on OpenRouter
+export const DEFAULT_MODEL = "mistralai/mistral-small-24b-instruct-2501";
+export const FALLBACK_MODELS = [
+  "meta-llama/llama-3.3-70b-instruct",
+  "deepseek/deepseek-chat"
+];
+
 export const AI_MODELS = {
-  DEEPSEEK_CHAT: "deepseek/deepseek-chat"
+  MISTRAL_FAST: "mistralai/mistral-small-24b-instruct-2501",
+  LLAMA_SMART: "meta-llama/llama-3.3-70b-instruct",
+  DEEPSEEK: "deepseek/deepseek-chat"
 };
 
 /**
- * Stream chat completions directly from OpenRouter via native fetch and SSE.
- * Handles keep-alive comment lines (e.g. ": OPENROUTER PROCESSING") cleanly.
- *
- * @param {Object} options
- * @param {Array<{role: string, content: string}>} options.messages - Array of system/user/assistant messages
- * @param {(delta: string, fullText: string) => void} options.onChunk - Callback invoked as each token arrives
- * @param {AbortSignal} [options.signal] - AbortSignal to cancel streaming if user stops or unmounts
- * @param {string} [options.model] - Model identifier (defaults to deepseek/deepseek-chat)
- * @returns {Promise<string>} - Complete generated response text
+ * Single-model streaming attempt
  */
-export const askMoneyAIStream = async ({
+const streamSingleModel = async ({
   messages,
   onChunk,
   signal,
-  model = DEFAULT_MODEL
+  model
 }) => {
+  const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error("Missing OpenRouter API key. Please check VITE_OPENROUTER_KEY in .env");
   }
@@ -48,9 +49,9 @@ export const askMoneyAIStream = async ({
       const errorJson = await response.json();
       errorDetail = errorJson?.error?.message || errorDetail;
     } catch {
-      // response wasn't JSON
+      // response was not JSON
     }
-    throw new Error(`OpenRouter API error: ${errorDetail}`);
+    throw new Error(errorDetail);
   }
 
   if (!response.body) {
@@ -69,13 +70,12 @@ export const askMoneyAIStream = async ({
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
-      // Keep the last incomplete chunk in buffer
       buffer = lines.pop() ?? "";
 
       for (const line of lines) {
         const trimmed = line.trim();
 
-        // OpenRouter sends keep-alive comments starting with ":" like ": OPENROUTER PROCESSING"
+        // OpenRouter comments like ": OPENROUTER PROCESSING"
         if (!trimmed || trimmed.startsWith(":")) {
           continue;
         }
@@ -88,6 +88,9 @@ export const askMoneyAIStream = async ({
 
           try {
             const parsed = JSON.parse(dataStr);
+            if (parsed.error) {
+              throw new Error(parsed.error.message || "Model provider error during streaming");
+            }
             const delta = parsed.choices?.[0]?.delta?.content || "";
             if (delta) {
               fullResponse += delta;
@@ -95,8 +98,10 @@ export const askMoneyAIStream = async ({
                 onChunk(delta, fullResponse);
               }
             }
-          } catch {
-            // Ignore incomplete JSON chunks
+          } catch (e) {
+            if (e.message && e.message.includes("Model provider error")) {
+              throw e;
+            }
           }
         }
       }
@@ -106,6 +111,45 @@ export const askMoneyAIStream = async ({
   }
 
   return fullResponse;
+};
+
+/**
+ * Stream chat completions with automatic model fallback for maximum reliability
+ */
+export const askMoneyAIStream = async ({
+  messages,
+  onChunk,
+  signal,
+  model = DEFAULT_MODEL
+}) => {
+  const modelsToTry = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
+  let lastError = null;
+
+  for (const currentModel of modelsToTry) {
+    if (signal?.aborted) return "";
+
+    try {
+      const result = await streamSingleModel({
+        messages,
+        onChunk,
+        signal,
+        model: currentModel
+      });
+
+      if (result && result.trim().length > 0) {
+        return result;
+      }
+      console.warn(`[MoneyAI] Empty response from ${currentModel}, trying fallback...`);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw err;
+      }
+      console.warn(`[MoneyAI] Model ${currentModel} error:`, err.message);
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("No response from AI assistant. Please try again.");
 };
 
 /**
