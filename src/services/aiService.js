@@ -1,6 +1,9 @@
 const apiKey = import.meta.env.VITE_OPENROUTER_KEY;
 
 export const DEFAULT_MODEL = "deepseek/deepseek-chat";
+export const AI_MODELS = {
+  DEEPSEEK_CHAT: "deepseek/deepseek-chat"
+};
 
 /**
  * Stream chat completions directly from OpenRouter via native fetch and SSE.

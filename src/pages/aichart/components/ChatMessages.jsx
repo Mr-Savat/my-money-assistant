@@ -3,21 +3,17 @@ import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 const ChatMessages = ({ messages, loading }) => {
-  const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
 
-  const scrollToBottom = (instant = false) => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: instant ? 'auto' : 'smooth',
-        block: 'end'
-      });
-    }
-  };
-
   useEffect(() => {
-    // During active token streaming, scroll instantly to avoid jittery animation collisions
-    scrollToBottom(loading);
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Direct scroll without forcing window reflow or animation collision
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 160;
+    if (isNearBottom || loading) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [messages, loading]);
 
   return (
@@ -80,7 +76,9 @@ const ChatMessages = ({ messages, loading }) => {
                           <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce"></span>
                         </div>
                       ) : (
-                        <div className="prose dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed">
+                        <div className={`prose dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed ${
+                          loading && isLastMessage ? 'streaming-cursor' : ''
+                        }`}>
                           <ReactMarkdown
                             components={{
                               p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -111,11 +109,8 @@ const ChatMessages = ({ messages, loading }) => {
                               )
                             }}
                           >
-                            {m.text}
+                            {m.text || ''}
                           </ReactMarkdown>
-                          {loading && isLastMessage && (
-                            <span className="inline-block w-1.5 h-4 ml-1 bg-indigo-500 align-middle animate-pulse rounded-xs" />
-                          )}
                         </div>
                       )
                     ) : (
@@ -127,7 +122,6 @@ const ChatMessages = ({ messages, loading }) => {
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
     </div>
   );
